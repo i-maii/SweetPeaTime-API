@@ -1,0 +1,14 @@
+spring:
+  datasource:
+     driverClassName: com.mysql.jdbc.Driver
+     url: jdbc:mysql://localhost:3306/SweetPeaTimes
+     username: root
+     password: J2cham*n
+#     jpa:
+#        hibernate.ddl-auto: update
+#        generate-ddl: true
+#        show-swl: true
+#        hibernate:
+#           naming:
+#               physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#               implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
