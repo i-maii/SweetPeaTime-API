@@ -12,15 +12,21 @@ public class FlowerFormula {
     private String size;
     private String pattern;
     private Double price;
+    private String imagePath;
+    private String occasion;
+    private Integer quantityAvailable;
 
     public FlowerFormula(){}
 
-    public FlowerFormula(Integer id, String name, String size, String pattern, Double price) {
+    public FlowerFormula(Integer id, String name, String size, String pattern, Double price, String imagePath, String occasion, Integer quantityAvailable) {
         this.id = id;
         this.name = name;
         this.size = size;
         this.pattern = pattern;
         this.price = price;
+        this.imagePath = imagePath;
+        this.occasion = occasion;
+        this.quantityAvailable = quantityAvailable;
     }
 
     public Integer getId() {
@@ -61,5 +67,29 @@ public class FlowerFormula {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public String getOccasion() {
+        return occasion;
+    }
+
+    public void setOccasion(String occasion) {
+        this.occasion = occasion;
+    }
+
+    public Integer getQuantityAvailable() {
+        return quantityAvailable;
+    }
+
+    public void setQuantityAvailable(Integer quantityAvailable) {
+        this.quantityAvailable = quantityAvailable;
     }
 }
