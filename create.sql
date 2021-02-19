@@ -1,5 +1,5 @@
 CREATE TABLE `Flower` (
-      `flowerId` int NOT NULL AUTO_INCREMENT,
+      `id` int NOT NULL AUTO_INCREMENT,
       `flowerName` varchar(100) NOT NULL,
       `mainCategory` varchar(100) NOT NULL,
       `isStock` tinyint(1) NOT NULL,

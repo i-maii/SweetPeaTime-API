@@ -5,7 +5,7 @@ import javax.persistence.*;
 @Table(name="Flower")
 public class Flower {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer flowerId;
+    private Integer id;
     private String flowerName;
     private String mainCategory;
     private Boolean isStock;
@@ -18,8 +18,8 @@ public class Flower {
 
     public Flower(){}
 
-    public Flower(Integer flowerId, String flowerName, String mainCategory, Boolean isStock, Integer lifeTime, String unit, Boolean isFreeze, String flowerCategory, String flowerType, Integer capacity) {
-        this.flowerId = flowerId;
+    public Flower(Integer id, String flowerName, String mainCategory, Boolean isStock, Integer lifeTime, String unit, Boolean isFreeze, String flowerCategory, String flowerType, Integer capacity) {
+        this.id = id;
         this.flowerName = flowerName;
         this.mainCategory = mainCategory;
         this.isStock = isStock;
@@ -31,12 +31,12 @@ public class Flower {
         this.capacity = capacity;
     }
 
-    public void setFlowerId(Integer flowerId) {
-        this.flowerId = flowerId;
+    public void setFlowerId(Integer id) {
+        this.id = id;
     }
 
     public Integer getFlowerId() {
-        return flowerId;
+        return id;
     }
 
     public String getFlowerName() {
