@@ -1,6 +1,6 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
-public class FlowerQuantityAvaliableDto {
+public class FlowerQuantityAvailableDto {
 
     private int id;
     private int flowerQuantityAvailiable;
@@ -20,4 +20,5 @@ public class FlowerQuantityAvaliableDto {
     public void setFlowerQuantityAvailiable(int flowerQuantityAvailiable) {
         this.flowerQuantityAvailiable = flowerQuantityAvailiable;
     }
+
 }

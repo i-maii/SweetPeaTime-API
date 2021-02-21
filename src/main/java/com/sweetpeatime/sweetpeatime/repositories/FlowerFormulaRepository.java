@@ -6,7 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface FlowerFormulaRepository extends JpaRepository<FlowerFormula, Integer> {
 
-    @Query(value = "SELECT quantityAvailable FROM FlowerFormula ff WHERE ff.id = ?1",
+
+    @Query(value = "SELECT ff.price FROM FlowerFormula ff WHERE ff.id = ?1",
             nativeQuery = true)
-    Integer getQuantityAvailable(Integer id);
+    Integer getFlowerPrice(Integer id);
+
+    FlowerFormula findFlowerFormulaById(Integer id);
 }

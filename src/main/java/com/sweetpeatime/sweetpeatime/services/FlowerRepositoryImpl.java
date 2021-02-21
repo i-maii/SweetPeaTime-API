@@ -1,4 +1,4 @@
-package com.sweetpeatime.sweetpeatime.repositories.impl;
+package com.sweetpeatime.sweetpeatime.services;
 
 import com.sweetpeatime.sweetpeatime.entities.Flower;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerRepository;

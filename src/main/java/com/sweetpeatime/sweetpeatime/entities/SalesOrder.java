@@ -20,11 +20,11 @@ public class SalesOrder {
     private Date deliveryDateTime;
     private Date receiverDateTime;
     private String status;
-    private String deliveryPrice;
+    private Double deliveryPrice;
 
     public SalesOrder(){}
 
-    public SalesOrder(Integer id, Date date, Double price, String customerName, String customerPhone, String receiverName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, String deliveryPrice) {
+    public SalesOrder(Integer id, Date date, Double price, String customerName, String customerPhone, String receiverName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, Double deliveryPrice) {
         this.id = id;
         this.date = date;
         this.price = price;
@@ -136,11 +136,11 @@ public class SalesOrder {
         this.status = status;
     }
 
-    public String getDeliveryPrice() {
+    public Double getDeliveryPrice() {
         return deliveryPrice;
     }
 
-    public void setDeliveryPrice(String deliveryPrice) {
+    public void setDeliveryPrice(Double deliveryPrice) {
         this.deliveryPrice = deliveryPrice;
     }
 }

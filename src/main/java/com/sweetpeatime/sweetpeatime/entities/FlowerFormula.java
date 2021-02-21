@@ -5,6 +5,7 @@ import javax.persistence.*;
 @Entity
 @Table(name="FlowerFormula")
 public class FlowerFormula {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -17,17 +18,6 @@ public class FlowerFormula {
     private Integer quantityAvailable;
 
     public FlowerFormula(){}
-
-    public FlowerFormula(Integer id, String name, String size, String pattern, Double price, String imagePath, String occasion, Integer quantityAvailable) {
-        this.id = id;
-        this.name = name;
-        this.size = size;
-        this.pattern = pattern;
-        this.price = price;
-        this.imagePath = imagePath;
-        this.occasion = occasion;
-        this.quantityAvailable = quantityAvailable;
-    }
 
     public Integer getId() {
         return id;
