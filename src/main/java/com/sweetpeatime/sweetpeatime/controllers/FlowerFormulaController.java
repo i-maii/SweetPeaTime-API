@@ -69,7 +69,7 @@ public class FlowerFormulaController {
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "pattern", required = false) String pattern,
             @RequestParam(value = "occasion", required = false) String occasion,
-            @RequestParam(value = "price", required = false) Number price,
+            @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "quantityAvailable", required = false) String quantityAvailable,
             @RequestParam(value = "size", required = false) String size
     ){
