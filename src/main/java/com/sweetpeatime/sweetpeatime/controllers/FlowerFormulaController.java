@@ -6,6 +6,9 @@ import com.sweetpeatime.sweetpeatime.repositories.FlowerFormulaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,9 @@ public class FlowerFormulaController {
 
     @Autowired
     FlowerFormulaRepository flowerFormulaRepository;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @GetMapping(value="/getAll")
     public List<FlowerFormula> getAllFlowerFormular() {
@@ -48,45 +54,50 @@ public class FlowerFormulaController {
             @RequestParam(value = "quantityAvailable", required = false) String quantityAvailable,
             @RequestParam(value = "size", required = false) String size
     ){
+        StringBuffer selectQueryStr = new StringBuffer("SELECT f FROM FlowerFormula f WHERE 1 = 1 ");
 
-        StringBuffer selectQueryStr = new StringBuffer("SELECT * FROM FlowerFormula f WHERE 1 = 1 ");
-       // StringBuffer countQueryStr = new StringBuffer("SELECT count(c.id) FROM FlowerFormula f WHERE 1 = 1 ");
-
-        if (name != null) {
+        if (name != null)
             selectQueryStr.append("AND f.name = :name ");
 
-        } else {
-            //selectQueryStr.append("AND c.name is null ");
-           // countQueryStr.append("AND c.name is null ");
-        }
-
-        if(pattern != null){
+        if(pattern != null)
             selectQueryStr.append("AND f.pattern = :pattern ");
 
-        }
-
-        if(occasion != null){
+        if(occasion != null)
             selectQueryStr.append("AND f.occasion = :occasion ");
 
-        }
-
-        if(price != null){
+        if(price != null)
             selectQueryStr.append("AND f.price <= :price ");
 
-        }
-
-        if(quantityAvailable != null){
+        if(quantityAvailable != null)
             selectQueryStr.append("AND f.quantityAvailable >= :quantityAvailable ");
 
-        }
-
-        if(size != null) {
+        if(size != null)
             selectQueryStr.append("AND f.size = :size ");
-        }
 
-        selectQueryStr.append("ORDER BY f.name DESC ").toString();
-        return this.flowerFormulaRepository.searchFlowerFormula(selectQueryStr);
+        selectQueryStr.append("ORDER BY f.name DESC ");
 
+        Query selectQuery = entityManager.createQuery(selectQueryStr.toString(), FlowerFormula.class);
+
+        if (name != null)
+            selectQuery.setParameter("name", name);
+
+        if (pattern != null)
+            selectQuery.setParameter("pattern", pattern);
+
+        if (occasion != null)
+            selectQuery.setParameter("occasion", occasion);
+
+        if (price != null)
+            selectQuery.setParameter("price", price);
+
+        if (quantityAvailable != null)
+            selectQuery.setParameter("quantityAvailable", quantityAvailable);
+
+        if (size != null)
+            selectQuery.setParameter("size", size);
+
+        List<FlowerFormula> flowerFormulas = selectQuery.getResultList();
+
+        return flowerFormulas;
     }
-
 }

@@ -11,8 +11,4 @@ public interface FlowerFormulaRepository extends JpaRepository<FlowerFormula, In
     @Query(value = "SELECT quantityAvailable FROM FlowerFormula ff WHERE ff.id = ?1",
             nativeQuery = true)
     Integer getQuantityAvailable(Integer id);
-
-    @Query(value = query,
-            nativeQuery = true)
-    List<FlowerFormula> searchFlowerFormula(StringBuffer query);
 }
