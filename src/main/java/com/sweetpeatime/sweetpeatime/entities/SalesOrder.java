@@ -10,10 +10,12 @@ public class SalesOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Date date;
-    private Double price;
-    private String customerName;
+    private Integer price;
+    private String customerFirstName;
+    private String customerLastName;
     private String customerPhone;
-    private String receiverName;
+    private String receiverFirstName;
+    private String receiverLastName;
     private String receiverAddress;
     private String receiverPhone;
     private String note;
@@ -21,16 +23,19 @@ public class SalesOrder {
     private Date receiverDateTime;
     private String status;
     private Double deliveryPrice;
+    private Double totalPrice;
 
     public SalesOrder(){}
 
-    public SalesOrder(Integer id, Date date, Double price, String customerName, String customerPhone, String receiverName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, Double deliveryPrice) {
+    public SalesOrder(Integer id, Date date, Integer price, String customerFirstName, String customerLastName, String customerPhone, String receiverFirstName, String receiverLastName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, Double deliveryPrice, Double totalPrice) {
         this.id = id;
         this.date = date;
         this.price = price;
-        this.customerName = customerName;
+        this.customerFirstName = customerFirstName;
+        this.customerLastName = customerLastName;
         this.customerPhone = customerPhone;
-        this.receiverName = receiverName;
+        this.receiverFirstName = receiverFirstName;
+        this.receiverLastName = receiverLastName;
         this.receiverAddress = receiverAddress;
         this.receiverPhone = receiverPhone;
         this.note = note;
@@ -38,6 +43,7 @@ public class SalesOrder {
         this.receiverDateTime = receiverDateTime;
         this.status = status;
         this.deliveryPrice = deliveryPrice;
+        this.totalPrice = totalPrice;
     }
 
     public Integer getId() {
@@ -56,20 +62,28 @@ public class SalesOrder {
         this.date = date;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public String getCustomerFirstName() {
+        return customerFirstName;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setCustomerFirstName(String customerFirstName) {
+        this.customerFirstName = customerFirstName;
+    }
+
+    public String getCustomerLastName() {
+        return customerLastName;
+    }
+
+    public void setCustomerLastName(String customerLastName) {
+        this.customerLastName = customerLastName;
     }
 
     public String getCustomerPhone() {
@@ -80,12 +94,20 @@ public class SalesOrder {
         this.customerPhone = customerPhone;
     }
 
-    public String getReceiverName() {
-        return receiverName;
+    public String getReceiverFirstName() {
+        return receiverFirstName;
     }
 
-    public void setReceiverName(String receiverName) {
-        this.receiverName = receiverName;
+    public void setReceiverFirstName(String receiverFirstName) {
+        this.receiverFirstName = receiverFirstName;
+    }
+
+    public String getReceiverLastName() {
+        return receiverLastName;
+    }
+
+    public void setReceiverLastName(String receiverLastName) {
+        this.receiverLastName = receiverLastName;
     }
 
     public String getReceiverAddress() {
@@ -142,5 +164,13 @@ public class SalesOrder {
 
     public void setDeliveryPrice(Double deliveryPrice) {
         this.deliveryPrice = deliveryPrice;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

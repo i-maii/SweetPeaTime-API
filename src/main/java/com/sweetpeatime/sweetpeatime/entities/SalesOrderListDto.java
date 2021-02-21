@@ -2,7 +2,8 @@ package com.sweetpeatime.sweetpeatime.entities;
 
 import java.util.Date;
 
-public class CreateSalesOrder {
+public class SalesOrderListDto {
+
     private Integer id;
     private String orderFirstName;
     private String orderLastName;
@@ -21,8 +22,6 @@ public class CreateSalesOrder {
     private Integer florist;
     private String note;
     private String status;
-
-    public CreateSalesOrder(){}
 
     public Integer getId() {
         return id;
