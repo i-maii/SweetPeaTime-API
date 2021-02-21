@@ -20,16 +20,19 @@ public class PromotionDetailLogController {
     @Autowired
     PromotionDetailLogRepository promotionDetailLogRepository;
 
-    @GetMapping(value = "")
-    public List<PromotionDetailLog> getPromotion(
-            @RequestParam(value = "isNormal", required = true) boolean isNormal
-    ) throws ParseException {
+    @GetMapping(value = "/normal")
+    public List<PromotionDetailLog> getNormalPromotion() throws ParseException {
         String dateInStr = this.dateFormat.format(new Date());
         Date date = this.dateFormat.parse(dateInStr);
 
-        if (isNormal)
-            return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "normal", "active");
-        else
-            return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "current", "active");
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "normal", "active");
+    }
+
+    @GetMapping(value = "/current")
+    public List<PromotionDetailLog> getCurrentPromotion() throws ParseException {
+        String dateInStr = this.dateFormat.format(new Date());
+        Date date = this.dateFormat.parse(dateInStr);
+
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "current", "active");
     }
 }
