@@ -54,10 +54,11 @@ public class FlowerFormulaController {
             @RequestParam(value = "quantityAvailable", required = false) String quantityAvailable,
             @RequestParam(value = "size", required = false) String size
     ){
-        StringBuffer selectQueryStr = new StringBuffer("SELECT f FROM FlowerFormula f WHERE 1 = 1 ");
+        StringBuilder selectQueryStr = new StringBuilder("SELECT f FROM FlowerFormula f WHERE 1 = 1 ");
 
         if (name != null)
-            selectQueryStr.append("AND f.name = :name ");
+            //selectQueryStr.append("AND f.name like :name ");
+            selectQueryStr.append("AND f.name like CONCAT('%', :name, '%') ");
 
         if(pattern != null)
             selectQueryStr.append("AND f.pattern = :pattern ");
@@ -74,7 +75,7 @@ public class FlowerFormulaController {
         if(size != null)
             selectQueryStr.append("AND f.size = :size ");
 
-        selectQueryStr.append("ORDER BY f.name DESC ");
+        selectQueryStr.append("ORDER BY f.size ASC, f.price DESC ");
 
         Query selectQuery = entityManager.createQuery(selectQueryStr.toString(), FlowerFormula.class);
 
