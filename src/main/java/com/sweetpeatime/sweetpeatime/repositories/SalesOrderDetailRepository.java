@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface SalesOrderDetailRepository extends JpaRepository<SalesOrderDetail, Integer> {
-    SalesOrderDetail findAllBySalesOrderId(Integer salesOderId);
+    List<SalesOrderDetail> findAllBySalesOrderId(Integer salesOderId);
 }

@@ -75,63 +75,66 @@ public class SalesOrderController {
         int deleteStock = 0;
 
         //decrease promotion detail
-        if (createSalesOrder.getFlowerAvailable() >= createSalesOrder.getOrderTotal()) {
-            List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(createSalesOrder.getFlowerFormula(), createSalesOrder.getReceiveDateTime());
+       for (FlowerMultipleDto flowerMultipleDto : createSalesOrder.getFlowerMultipleDtoList()){
+           if (flowerMultipleDto.getFlowerAvailable() >= flowerMultipleDto.getOrderTotal()) {
+               List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(flowerMultipleDto.getFlowerFormula(), createSalesOrder.getReceiveDateTime());
 
 
-            for (int i = 1; i <= createSalesOrder.getOrderTotal(); i++){
-                if(promotionDetails.size() > 1){
-                    PromotionDetail promotionDetail = new PromotionDetail();
-                    int temp = 0;
-                    for (int j = 0; j < promotionDetails.size()-1; j++) {
-                        if (promotionDetails.get(temp).getExpiryDate().before(promotionDetails.get(j+1).getExpiryDate()) && promotionDetail.getQuantity() != 0) {
-                            promotionDetail = promotionDetails.get(temp);
-                        } else {
-                            promotionDetail = promotionDetails.get(j+1);
-                            temp = j + 1;
-                        }
-                    }
+               for (int i = 1; i <= flowerMultipleDto.getOrderTotal(); i++){
+                   if(promotionDetails.size() > 1){
+                       PromotionDetail promotionDetail = new PromotionDetail();
+                       int temp = 0;
+                       for (int j = 0; j < promotionDetails.size()-1; j++) {
+                           if (promotionDetails.get(temp).getExpiryDate().before(promotionDetails.get(j+1).getExpiryDate()) && promotionDetail.getQuantity() != 0) {
+                               promotionDetail = promotionDetails.get(temp);
+                           } else {
+                               promotionDetail = promotionDetails.get(j+1);
+                               temp = j + 1;
+                           }
+                       }
 
-                    if (promotionDetail.getQuantity() != 0){
-                        if (!promotionDetail.getType().equals("ช่อ")){
-                            deleteStock++;
-                        }
-                        promotionDetail.setQuantity(promotionDetail.getQuantity() - i);
-                        promotionDetail.setQuantitySold(promotionDetail.getQuantitySold() + i);
-                        this.promotionDetailRepository.saveAndFlush(promotionDetail);
-                    }
-                } else {
-                    if (promotionDetails.get(0).getQuantity() != 0){
-                        if (!promotionDetails.get(0).getType().equals("ช่อ")){
-                            deleteStock++;
-                        }
-                        promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - i);
-                        promotionDetails.get(0).setQuantitySold(promotionDetails.get(0).getQuantitySold() + i);
-                        this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
-                    }
-                }
+                       if (promotionDetail.getQuantity() != 0){
+                           if (!promotionDetail.getType().equals("ช่อ")){
+                               deleteStock++;
+                           }
+                           promotionDetail.setQuantity(promotionDetail.getQuantity() - i);
+                           promotionDetail.setQuantitySold(promotionDetail.getQuantitySold() + i);
+                           this.promotionDetailRepository.saveAndFlush(promotionDetail);
+                       }
+                   } else {
+                       if (promotionDetails.get(0).getQuantity() != 0){
+                           if (!promotionDetails.get(0).getType().equals("ช่อ")){
+                               deleteStock++;
+                           }
+                           promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - i);
+                           promotionDetails.get(0).setQuantitySold(promotionDetails.get(0).getQuantitySold() + i);
+                           this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
+                       }
+                   }
 
-            }
-        }
+               }
+           }
 
-        List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(createSalesOrder.getFlowerFormula());
-        //decrease stock
-        for (FlowerFormulaDetail f: flowerFormulaDetail) {
-            Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
-            Integer quantity = stock.getQuantity() - (f.getQuantity() * deleteStock);
-            stock.setQuantity(quantity);
-            this.stockRepository.saveAndFlush(stock);
-        }
+           List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerMultipleDto.getFlowerFormula());
 
-        //create salesorderDetail
-        SalesOrderDetail salesOrderDetail = new SalesOrderDetail();
-        salesOrderDetail.setSalesOrder(salesOrder1);
-        Florist florist = this.floristRepository.findFloristById(createSalesOrder.getFlorist());
-        salesOrderDetail.setFlorist(florist);
-        salesOrderDetail.setQuantity(createSalesOrder.getOrderTotal());
-        FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(createSalesOrder.getFlowerFormula());
-        salesOrderDetail.setFlowerFormula(flowerFormula);
-        this.salesOrderDetailRepository.saveAndFlush(salesOrderDetail);
+           //decrease stock
+           for (FlowerFormulaDetail f: flowerFormulaDetail) {
+               Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
+               Integer quantity = stock.getQuantity() - (f.getQuantity() * deleteStock);
+               stock.setQuantity(quantity);
+               this.stockRepository.saveAndFlush(stock);
+           }
+
+           //create salesorderDetail
+           SalesOrderDetail salesOrderDetail = new SalesOrderDetail();
+           salesOrderDetail.setSalesOrder(salesOrder1);
+           Florist florist = this.floristRepository.findFloristById(createSalesOrder.getFlorist());
+           salesOrderDetail.setFlorist(florist);
+           salesOrderDetail.setQuantity(flowerMultipleDto.getOrderTotal());
+           FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(flowerMultipleDto.getFlowerFormula());
+           salesOrderDetail.setFlowerFormula(flowerFormula);
+           this.salesOrderDetailRepository.saveAndFlush(salesOrderDetail);
+       }
 
     }
 
@@ -161,7 +164,7 @@ public class SalesOrderController {
         salesOrder.setTotalPrice(updateSalesOrder.getTotalPrice());
 
         this.salesOrderRepository.saveAndFlush(salesOrder);
-        SalesOrderDetail salesOrderDetail = this.salesOrderDetailRepository.findAllBySalesOrderId(updateSalesOrder.getId());
+        List<SalesOrderDetail> salesOrderDetail = this.salesOrderDetailRepository.findAllBySalesOrderId(updateSalesOrder.getId());
 //        Florist florist = this.floristRepository.findFloristById(updateSalesOrder.getFlorist());
 
 //        if(updateSalesOrder.getStatus().equals("ยกเลิกออเดอร์")){

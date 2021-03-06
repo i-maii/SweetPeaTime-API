@@ -1,6 +1,7 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
 import java.util.Date;
+import java.util.List;
 
 public class SalesOrderListDto {
 
@@ -13,9 +14,7 @@ public class SalesOrderListDto {
     private String receiverPhone;
     private String receiverAddress;
     private Date receiveDateTime;
-    private Integer flowerFormula;
-    private Integer flowerAvailable;
-    private Integer orderTotal;
+    List<FlowerMultipleDto> flowerMultipleDtoList;
     private Integer flowerPrice;
     private Double deliveryFee;
     private Double totalPrice;
@@ -95,20 +94,12 @@ public class SalesOrderListDto {
         this.receiveDateTime = receiveDateTime;
     }
 
-    public Integer getFlowerFormula() {
-        return flowerFormula;
+    public List<FlowerMultipleDto> getFlowerMultipleDtoList() {
+        return flowerMultipleDtoList;
     }
 
-    public void setFlowerFormula(Integer flowerFormula) {
-        this.flowerFormula = flowerFormula;
-    }
-
-    public Integer getFlowerAvailable() {
-        return flowerAvailable;
-    }
-
-    public void setFlowerAvailable(Integer flowerAvailable) {
-        this.flowerAvailable = flowerAvailable;
+    public void setFlowerMultipleDtoList(List<FlowerMultipleDto> flowerMultipleDtoList) {
+        this.flowerMultipleDtoList = flowerMultipleDtoList;
     }
 
     public Integer getFlowerPrice() {
@@ -159,11 +150,4 @@ public class SalesOrderListDto {
         this.status = status;
     }
 
-    public Integer getOrderTotal() {
-        return orderTotal;
-    }
-
-    public void setOrderTotal(Integer orderTotal) {
-        this.orderTotal = orderTotal;
-    }
 }

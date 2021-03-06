@@ -24,7 +24,7 @@ public class SalesOrderDetailController {
     }
 
     @GetMapping(value="/getBySalesOrder")
-    public SalesOrderDetail getBySalesOrder(@RequestParam("salesOrderId") Integer salesOrderId) {
+    public List<SalesOrderDetail> getBySalesOrder(@RequestParam("salesOrderId") Integer salesOrderId) {
         return this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrderId);
     }
 }
