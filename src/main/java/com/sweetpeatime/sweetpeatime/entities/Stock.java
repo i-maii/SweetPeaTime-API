@@ -1,8 +1,23 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
+import com.sweetpeatime.sweetpeatime.wrapper.StockWrapper;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@SqlResultSetMapping(
+        name="stockMapping",
+        classes={
+                @ConstructorResult(
+                        targetClass= StockWrapper.class,
+                        columns={
+                                @ColumnResult(name="flowerId", type = Integer.class),
+                                @ColumnResult(name="floristId", type = Integer.class),
+                                @ColumnResult(name="quantity", type = Integer.class)
+                        }
+                )
+        }
+)
 @Entity
 @Table(name="Stock")
 public class Stock {
@@ -12,7 +27,6 @@ public class Stock {
     private Integer quantity;
     private String unit;
     private Date lot;
-    private Integer reserve;
     private Florist florist;
     private FlowerPrice flowerPrice;
 
@@ -58,14 +72,6 @@ public class Stock {
 
     public void setLot(Date lot) {
         this.lot = lot;
-    }
-
-    public Integer getReserve() {
-        return reserve;
-    }
-
-    public void setReserve(Integer reserve) {
-        this.reserve = reserve;
     }
 
     @ManyToOne(targetEntity= Florist.class)
