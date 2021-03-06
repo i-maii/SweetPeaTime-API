@@ -18,7 +18,6 @@ public class PromotionDetail {
     private String status;
     private Promotion promotion;
     private FlowerFormula flowerFormula;
-    private String locationName;
     private Date expiryDate;
     private Florist florist;
     private String type;
@@ -93,14 +92,6 @@ public class PromotionDetail {
 
     public void setFlowerFormula(FlowerFormula flowerFormula) {
         this.flowerFormula = flowerFormula;
-    }
-
-    public String getLocationName() {
-        return locationName;
-    }
-
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
     }
 
     public Date getExpiryDate() {

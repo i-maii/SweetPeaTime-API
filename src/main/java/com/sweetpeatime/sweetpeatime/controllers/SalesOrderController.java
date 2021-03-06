@@ -216,7 +216,6 @@ public class SalesOrderController {
                 newPromotionDetail.setStatus("active");
                 newPromotionDetail.setPromotion(promotionCreated);
                 newPromotionDetail.setFlowerFormula(salesOrderDetail.getFlowerFormula());
-                newPromotionDetail.setLocationName(salesOrderDetail.getFlorist().getName());
                 newPromotionDetail.setExpiryDate(c.getTime());
                 newPromotionDetail.setType("ช่อ");
 
