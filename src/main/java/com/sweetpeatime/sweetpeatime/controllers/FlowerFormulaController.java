@@ -1,8 +1,7 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
-import com.sweetpeatime.sweetpeatime.entities.FlowerFormula;
-import com.sweetpeatime.sweetpeatime.entities.PriceOfSalesOrder;
-import com.sweetpeatime.sweetpeatime.repositories.FlowerFormulaRepository;
+import com.sweetpeatime.sweetpeatime.entities.*;
+import com.sweetpeatime.sweetpeatime.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,11 +21,26 @@ public class FlowerFormulaController {
     @Autowired
     FlowerFormulaRepository flowerFormulaRepository;
 
+    @Autowired
+    FlowerRepository flowerRepository;
+
+    @Autowired
+    FlowerFormulaDetailRepository flowerFormulaDetailRepository;
+
+    @Autowired
+    FlowerPriceRepository flowerPriceRepository;
+
+    @Autowired
+    ConfigurationRepository configurationRepository;
+
+    @Autowired
+    PromotionDetailRepository promotionDetailRepository;
+
     @PersistenceContext
     EntityManager entityManager;
 
     @GetMapping(value="/getAll")
-    public List<FlowerFormula> getAllFlowerFormular() {
+    public List<FlowerFormula> getAllFlowerFormula() {
         return this.flowerFormulaRepository.findAll();
     }
 
@@ -57,11 +72,6 @@ public class FlowerFormulaController {
         }
 
         return priceOfSalesOrder;
-    }
-
-    @GetMapping(value="/searchFlowerFormula")
-    public List<FlowerFormula> searchFlowerFormula() {
-        return this.flowerFormulaRepository.findAll();
     }
 
     @PostMapping(value="/search")
@@ -118,6 +128,53 @@ public class FlowerFormulaController {
 
         List<FlowerFormula> flowerFormulas = selectQuery.getResultList();
 
+        return flowerFormulas;
+    }
+
+    @PostMapping(value="updateFlowerFormulaPrice")
+    public void updateFlowerFormulaPrice() {
+        List<FlowerFormula> flowerFormulas = this.flowerFormulaRepository.findAll();
+        double flowerFormulaPrice = 0;
+        Integer percentProfit = this.configurationRepository.findConfigurationsById(3).getValue();
+
+        for (FlowerFormula flowerFormula: flowerFormulas) {
+            List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormula.getId());
+            for (FlowerFormulaDetail flowerFormulaDetail: flowerFormulaDetails) {
+                FlowerPrice flowerPrice = this.flowerPriceRepository.findAllByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
+                int unitQuantityUse = 1;
+                int i = flowerFormulaDetail.getQuantity();
+                while (i > flowerPrice.getQuantitySaleUnit()) {
+                    unitQuantityUse++;
+                    i = i - flowerPrice.getQuantitySaleUnit();
+                }
+                flowerFormulaPrice += flowerPrice.getPrice() * unitQuantityUse;
+            }
+            flowerFormulaPrice += (flowerFormulaPrice*percentProfit) / 100;
+
+            if (flowerFormulaPrice % 100 != 0) {
+                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
+            }
+            flowerFormula.setPrice(flowerFormulaPrice);
+            this.flowerFormulaRepository.saveAndFlush(flowerFormula);
+            flowerFormulaPrice = 0;
+        }
+    }
+
+    @GetMapping(value = "/getflowerFormula")
+    public List<FlowerFormula> setFlowerFormula() {
+        List<FlowerFormula> flowerFormulasPromotion = new ArrayList<>();
+        List<FlowerFormula> flowerFormulas = new ArrayList<>();
+        flowerFormulasPromotion = this.flowerFormulaRepository.findAllByFlowerFormulaId();
+        flowerFormulas = this.flowerFormulaRepository.findAll();
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormulas.remove(flowerFormula);
+        }
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormula.setName(flowerFormula.getName() + " โปรโมชั่น");
+        }
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormulas.add(0, flowerFormula);
+        }
         return flowerFormulas;
     }
 }

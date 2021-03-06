@@ -11,8 +11,6 @@ public class FlowerPrice {
     private String saleUnit;
     private Double price;
     private Date lot;
-    private Date supplierDate;
-    private Supplier supplier;
     private Flower flower;
 
     @Id
@@ -55,24 +53,6 @@ public class FlowerPrice {
 
     public void setLot(Date lot) {
         this.lot = lot;
-    }
-
-    public Date getSupplierDate() {
-        return supplierDate;
-    }
-
-    public void setSupplierDate(Date supplierDate) {
-        this.supplierDate = supplierDate;
-    }
-
-    @ManyToOne(targetEntity = Supplier.class)
-    @JoinColumn(name = "supplierId", referencedColumnName = "id")
-    public Supplier getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(Supplier supplier) {
-        this.supplier = supplier;
     }
 
     @ManyToOne(targetEntity = Flower.class)

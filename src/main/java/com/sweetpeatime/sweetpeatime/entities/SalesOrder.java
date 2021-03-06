@@ -11,11 +11,10 @@ public class SalesOrder {
     private Integer id;
     private Date date;
     private Integer price;
-    private String customerFirstName;
-    private String customerLastName;
+    private String customerName;
+    private String customerLineFb;
     private String customerPhone;
-    private String receiverFirstName;
-    private String receiverLastName;
+    private String receiverName;
     private String receiverAddress;
     private String receiverPhone;
     private String note;
@@ -27,15 +26,14 @@ public class SalesOrder {
 
     public SalesOrder(){}
 
-    public SalesOrder(Integer id, Date date, Integer price, String customerFirstName, String customerLastName, String customerPhone, String receiverFirstName, String receiverLastName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, Double deliveryPrice, Double totalPrice) {
+    public SalesOrder(Integer id, Date date, Integer price, String customerName, String customerLineFb, String customerPhone, String receiverName, String receiverAddress, String receiverPhone, String note, Date deliveryDateTime, Date receiverDateTime, String status, Double deliveryPrice, Double totalPrice) {
         this.id = id;
         this.date = date;
         this.price = price;
-        this.customerFirstName = customerFirstName;
-        this.customerLastName = customerLastName;
+        this.customerName = customerName;
+        this.customerLineFb = customerLineFb;
         this.customerPhone = customerPhone;
-        this.receiverFirstName = receiverFirstName;
-        this.receiverLastName = receiverLastName;
+        this.receiverName = receiverName;
         this.receiverAddress = receiverAddress;
         this.receiverPhone = receiverPhone;
         this.note = note;
@@ -70,20 +68,20 @@ public class SalesOrder {
         this.price = price;
     }
 
-    public String getCustomerFirstName() {
-        return customerFirstName;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setCustomerFirstName(String customerFirstName) {
-        this.customerFirstName = customerFirstName;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
-    public String getCustomerLastName() {
-        return customerLastName;
+    public String getCustomerLineFb() {
+        return customerLineFb;
     }
 
-    public void setCustomerLastName(String customerLastName) {
-        this.customerLastName = customerLastName;
+    public void setCustomerLineFb(String customerLineFb) {
+        this.customerLineFb = customerLineFb;
     }
 
     public String getCustomerPhone() {
@@ -94,21 +92,14 @@ public class SalesOrder {
         this.customerPhone = customerPhone;
     }
 
-    public String getReceiverFirstName() {
-        return receiverFirstName;
+    public String getReceiverName() {
+        return receiverName;
     }
 
-    public void setReceiverFirstName(String receiverFirstName) {
-        this.receiverFirstName = receiverFirstName;
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
 
-    public String getReceiverLastName() {
-        return receiverLastName;
-    }
-
-    public void setReceiverLastName(String receiverLastName) {
-        this.receiverLastName = receiverLastName;
-    }
 
     public String getReceiverAddress() {
         return receiverAddress;

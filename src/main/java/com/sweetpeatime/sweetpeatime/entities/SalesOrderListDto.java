@@ -5,17 +5,17 @@ import java.util.Date;
 public class SalesOrderListDto {
 
     private Integer id;
-    private String orderFirstName;
-    private String orderLastName;
-    private String orderPhone;
-    private Date orderDate;
-    private String receiverFirstName;
-    private String receiverLastName;
+    private String customerName;
+    private String customerLineFb;
+    private String customerPhone;
+    private Date date;
+    private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
-    private Date receiveDate;
-    private Integer flowerFormular;
+    private Date receiveDateTime;
+    private Integer flowerFormula;
     private Integer flowerAvailable;
+    private Integer orderTotal;
     private Integer flowerPrice;
     private Double deliveryFee;
     private Double totalPrice;
@@ -31,52 +31,44 @@ public class SalesOrderListDto {
         this.id = id;
     }
 
-    public String getOrderFirstName() {
-        return orderFirstName;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setOrderFirstName(String orderFirstName) {
-        this.orderFirstName = orderFirstName;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
-    public String getOrderLastName() {
-        return orderLastName;
+    public String getCustomerLineFb() {
+        return customerLineFb;
     }
 
-    public void setOrderLastName(String orderLastName) {
-        this.orderLastName = orderLastName;
+    public void setCustomerLineFb(String customerLineFb) {
+        this.customerLineFb = customerLineFb;
     }
 
-    public String getOrderPhone() {
-        return orderPhone;
+    public String getCustomerPhone() {
+        return customerPhone;
     }
 
-    public void setOrderPhone(String orderPhone) {
-        this.orderPhone = orderPhone;
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
-    public Date getOrderDate() {
-        return orderDate;
+    public Date getDate() {
+        return date;
     }
 
-    public void setOrderDate(Date orderDate) {
-        this.orderDate = orderDate;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public String getReceiverFirstName() {
-        return receiverFirstName;
+    public String getReceiverName() {
+        return receiverName;
     }
 
-    public void setReceiverFirstName(String receiverFirstName) {
-        this.receiverFirstName = receiverFirstName;
-    }
-
-    public String getReceiverLastName() {
-        return receiverLastName;
-    }
-
-    public void setReceiverLastName(String receiverLastName) {
-        this.receiverLastName = receiverLastName;
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
 
     public String getReceiverPhone() {
@@ -95,20 +87,20 @@ public class SalesOrderListDto {
         this.receiverAddress = receiverAddress;
     }
 
-    public Date getReceiveDate() {
-        return receiveDate;
+    public Date getReceiveDateTime() {
+        return receiveDateTime;
     }
 
-    public void setReceiveDate(Date receiveDate) {
-        this.receiveDate = receiveDate;
+    public void setReceiveDateTime(Date receiveDateTime) {
+        this.receiveDateTime = receiveDateTime;
     }
 
-    public Integer getFlowerFormular() {
-        return flowerFormular;
+    public Integer getFlowerFormula() {
+        return flowerFormula;
     }
 
-    public void setFlowerFormular(Integer flowerFormular) {
-        this.flowerFormular = flowerFormular;
+    public void setFlowerFormula(Integer flowerFormula) {
+        this.flowerFormula = flowerFormula;
     }
 
     public Integer getFlowerAvailable() {
@@ -165,5 +157,13 @@ public class SalesOrderListDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getOrderTotal() {
+        return orderTotal;
+    }
+
+    public void setOrderTotal(Integer orderTotal) {
+        this.orderTotal = orderTotal;
     }
 }

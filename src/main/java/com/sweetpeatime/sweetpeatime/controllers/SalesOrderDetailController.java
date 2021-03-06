@@ -2,10 +2,12 @@ package com.sweetpeatime.sweetpeatime.controllers;
 
 import com.sweetpeatime.sweetpeatime.entities.SalesOrder;
 import com.sweetpeatime.sweetpeatime.entities.SalesOrderDetail;
+import com.sweetpeatime.sweetpeatime.entities.SalesOrderListDto;
 import com.sweetpeatime.sweetpeatime.repositories.SalesOrderDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -16,9 +18,13 @@ public class SalesOrderDetailController {
     @Autowired
     private SalesOrderDetailRepository salesOrderDetailRepository;
 
-    @GetMapping(value="/getAllBySaleOrder")
-    public SalesOrderDetail getAllSalesOrder(@RequestParam("salesOrderId") Integer salesOrderId) {
-        return this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrderId);
+    @GetMapping(value="/getAllSalesOrderDetail")
+    public List<SalesOrderDetail> getBySalesOrder() {
+        return this.salesOrderDetailRepository.findAll();
     }
 
+    @GetMapping(value="/getBySalesOrder")
+    public SalesOrderDetail getBySalesOrder(@RequestParam("salesOrderId") Integer salesOrderId) {
+        return this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrderId);
+    }
 }

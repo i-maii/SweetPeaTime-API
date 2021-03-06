@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -18,6 +19,9 @@ public class PromotionDetail {
     private Promotion promotion;
     private FlowerFormula flowerFormula;
     private String locationName;
+    private Date expiryDate;
+    private Florist florist;
+    private String type;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,5 +101,31 @@ public class PromotionDetail {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floristId", referencedColumnName = "id")
+    public Florist getFlorist() {
+        return florist;
+    }
+
+    public void setFlorist(Florist florist) {
+        this.florist = florist;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

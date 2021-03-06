@@ -12,7 +12,6 @@ public class Stock {
     private Integer quantity;
     private String unit;
     private Date lot;
-    private Integer reserve;
     private Florist florist;
     private FlowerPrice flowerPrice;
 
@@ -58,14 +57,6 @@ public class Stock {
 
     public void setLot(Date lot) {
         this.lot = lot;
-    }
-
-    public Integer getReserve() {
-        return reserve;
-    }
-
-    public void setReserve(Integer reserve) {
-        this.reserve = reserve;
     }
 
     @ManyToOne(targetEntity= Florist.class)
