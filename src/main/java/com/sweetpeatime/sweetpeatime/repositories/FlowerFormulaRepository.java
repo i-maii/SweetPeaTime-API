@@ -18,4 +18,5 @@ public interface FlowerFormulaRepository extends JpaRepository<FlowerFormula, In
     @Query(value = "SELECT ff.* FROM PromotionDetail pd LEFT JOIN FlowerFormula ff ON pd.flowerFormulaId = ff.id WHERE status = 'active'", nativeQuery = true)
     List<FlowerFormula> findAllByFlowerFormulaId();
 
+    List<FlowerFormula> findAllById(Integer id);
 }

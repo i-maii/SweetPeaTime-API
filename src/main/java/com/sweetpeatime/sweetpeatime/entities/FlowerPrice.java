@@ -10,7 +10,6 @@ public class FlowerPrice {
     private Integer quantitySaleUnit;
     private String saleUnit;
     private Double price;
-    private Date lot;
     private Flower flower;
 
     @Id
@@ -45,14 +44,6 @@ public class FlowerPrice {
 
     public void setPrice(Double price) {
         this.price = price;
-    }
-
-    public Date getLot() {
-        return lot;
-    }
-
-    public void setLot(Date lot) {
-        this.lot = lot;
     }
 
     @ManyToOne(targetEntity = Flower.class)

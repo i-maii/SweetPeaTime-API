@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +47,36 @@ public class SalesOrderController {
     @GetMapping(value="/getAll")
     public List<SalesOrder> getAllSalesOrder() {
         return this.salesOrderRepository.findAll();
+    }
+
+    @GetMapping(value="/getSalesOrderDetailListDto")
+    public List<SalesOrderDetailListDto> getSalesOrderListDto() {
+        List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
+
+        List<SalesOrder> salesOrders = this.salesOrderRepository.findAll();
+
+        for (SalesOrder salesOrder : salesOrders) {
+            SalesOrderDetailListDto salesOrderDetailListDto = new SalesOrderDetailListDto();
+            salesOrderDetailListDto.setId(salesOrder.getId());
+            salesOrderDetailListDto.setCustomerName(salesOrder.getCustomerName());
+            salesOrderDetailListDto.setCustomerPhone(salesOrder.getCustomerPhone());
+            salesOrderDetailListDto.setCustomerLineFb(salesOrder.getCustomerLineFb());
+            salesOrderDetailListDto.setDate(salesOrder.getDate());
+            salesOrderDetailListDto.setReceiverName(salesOrder.getReceiverName());
+            salesOrderDetailListDto.setReceiverPhone(salesOrder.getReceiverPhone());
+            salesOrderDetailListDto.setReceiverAddress(salesOrder.getReceiverAddress());
+            salesOrderDetailListDto.setReceiveDateTime(salesOrder.getReceiverDateTime());
+            salesOrderDetailListDto.setFlowerPrice(salesOrder.getPrice());
+            salesOrderDetailListDto.setDeliveryFee(salesOrder.getDeliveryPrice());
+            salesOrderDetailListDto.setTotalPrice(salesOrder.getTotalPrice());
+            salesOrderDetailListDto.setNote(salesOrder.getNote());
+            salesOrderDetailListDto.setStatus(salesOrder.getStatus());
+
+            List<SalesOrderDetail> salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrder.getId());
+            salesOrderDetailListDto.setSalesOrderDetails(salesOrderDetails);
+            salesOrderDetailListDtos.add(salesOrderDetailListDto);
+        }
+        return salesOrderDetailListDtos;
     }
 
     @PostMapping(value = "/createSalesOrder")
@@ -189,11 +220,12 @@ public class SalesOrderController {
     }
 
     @PostMapping(value = "/cancelSalesOrder")
-    public void cancelSalesOrder(@RequestBody SalesOrderDetail salesOrderDetail) throws ParseException {
+    public void cancelSalesOrder(@RequestBody List<SalesOrderDetail> salesOrderDetails) throws ParseException {
 
-        List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(salesOrderDetail.getFlowerFormula().getId());
+        for (SalesOrderDetail salesOrderDetail : salesOrderDetails) {
+            List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(salesOrderDetail.getFlowerFormula().getId());
 
-        if (salesOrderDetail.getSalesOrder().getStatus().equals("จัดเสร็จแล้ว")) {
+            if (salesOrderDetail.getSalesOrder().getStatus().equals("จัดเสร็จแล้ว")) {
 //            PromotionDetail promotionDetail = this.promotionDetailRepository.findOneByFlowerFormulaIdAndExpiryDate(salesOrderDetail.getFlowerFormula().getId(), LocalDateTime.from(salesOrderDetail.getSalesOrder().getReceiverDateTime().toInstant()).plusDays(1));
 //            if (promotionDetail.getFlowerFormula().getId() == salesOrderDetail.getFlowerFormula().getId() && promotionDetail.getExpiryDate() == salesOrderDetail.getSalesOrder().getDeliveryDateTime()) {
 //                promotionDetail.setQuantity(promotionDetail.getQuantity() + salesOrderDetail.getQuantity());
@@ -224,16 +256,18 @@ public class SalesOrderController {
 
                 this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
 //            }
-        } else {
-            for (FlowerFormulaDetail f: flowerFormulaDetail) {
-                Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
-                Integer quantity = stock.getQuantity() + (f.getQuantity() * salesOrderDetail.getQuantity());
-                stock.setQuantity(quantity);
-                this.stockRepository.saveAndFlush(stock);
+            } else {
+                for (FlowerFormulaDetail f: flowerFormulaDetail) {
+                    Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
+                    Integer quantity = stock.getQuantity() + (f.getQuantity() * salesOrderDetail.getQuantity());
+                    stock.setQuantity(quantity);
+                    this.stockRepository.saveAndFlush(stock);
+                }
             }
+            SalesOrder salesOrder = salesOrderDetail.getSalesOrder();
+            salesOrder.setStatus("ยกเลิกออเดอร์");
+            this.salesOrderRepository.saveAndFlush(salesOrder);
         }
-        SalesOrder salesOrder = salesOrderDetail.getSalesOrder();
-        salesOrder.setStatus("ยกเลิกออเดอร์");
-        this.salesOrderRepository.saveAndFlush(salesOrder);
     }
+
 }
