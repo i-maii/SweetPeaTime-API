@@ -194,27 +194,52 @@ public class FlowerFormulaController {
 
     @PostMapping(value="/search")
     public List<FlowerFormula> search(
+            @RequestParam(value = "flowerCat", required = false) String flowerCat,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "pattern", required = false) String pattern,
             @RequestParam(value = "occasion", required = false) String occasion,
-            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "priceFrom", required = false) Double priceFrom,
+            @RequestParam(value = "priceTo", required = false) Double priceTo,
             @RequestParam(value = "quantityAvailable", required = false) String quantityAvailable,
-            @RequestParam(value = "size", required = false) String size
+            @RequestParam(value = "size", required = false) String size,
+            @RequestParam(value = "color", required = false) String color,
+            @RequestParam(value = "florist", required = false) String florist
     ){
         StringBuilder selectQueryStr = new StringBuilder("SELECT f FROM FlowerFormula f WHERE 1 = 1 ");
 
         if (name != null)
             //selectQueryStr.append("AND f.name like :name ");
             selectQueryStr.append("AND f.name like CONCAT('%', :name, '%') ");
-
+        if(flowerCat != null)
+            selectQueryStr.append("AND f.category = :flowerCat ");
+        if(florist != null)
+        {
+            if(pattern !=null) {
+                if (florist.equals("หนึ่ง") && pattern.equals("เกาหลี")) {
+                    return null;
+                }
+            }
+            else
+            {
+                if (florist.equals("หนึ่ง")) {
+                    pattern = "ทั่วไป";
+                }
+            }
+        }
+        if(color != null)
+            selectQueryStr.append("AND f.color like CONCAT('%', :color, '%') ");
         if(pattern != null)
             selectQueryStr.append("AND f.pattern = :pattern ");
 
         if(occasion != null)
             selectQueryStr.append("AND f.occasion = :occasion ");
-
-        if(price != null)
-            selectQueryStr.append("AND f.price <= :price ");
+        if(priceFrom != null && priceTo != null)
+            selectQueryStr.append("AND f.price BETWEEN :priceFrom AND :priceTo ");
+        else
+            if(priceFrom != null && priceTo == null)
+            selectQueryStr.append("AND f.price >= :priceFrom ");
+            else if(priceFrom == null && priceTo != null)
+            selectQueryStr.append("AND f.price <= :priceTo ");
 
         if(quantityAvailable != null)
             selectQueryStr.append("AND f.quantityAvailable >= :quantityAvailable ");
@@ -223,20 +248,24 @@ public class FlowerFormulaController {
             selectQueryStr.append("AND f.size = :size ");
 
         selectQueryStr.append("ORDER BY f.size ASC, f.price DESC ");
-
         Query selectQuery = entityManager.createQuery(selectQueryStr.toString(), FlowerFormula.class);
+
 
         if (name != null)
             selectQuery.setParameter("name", name);
-
         if (pattern != null)
             selectQuery.setParameter("pattern", pattern);
-
+        if (flowerCat != null)
+            selectQuery.setParameter("flowerCat", flowerCat);
+        if (color != null)
+            selectQuery.setParameter("color", color);
         if (occasion != null)
             selectQuery.setParameter("occasion", occasion);
 
-        if (price != null)
-            selectQuery.setParameter("price", price);
+        if (priceFrom != null)
+            selectQuery.setParameter("priceFrom", priceFrom);
+        if (priceTo != null)
+            selectQuery.setParameter("priceTo", priceTo);
 
         if (quantityAvailable != null)
             selectQuery.setParameter("quantityAvailable", quantityAvailable);
