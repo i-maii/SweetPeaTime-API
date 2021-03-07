@@ -3,11 +3,9 @@ package com.sweetpeatime.sweetpeatime.controllers;
 import com.sweetpeatime.sweetpeatime.entities.Flower;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -23,5 +21,9 @@ public class FlowerController {
         return this.flowerRepository.findAll();
     }
 
+    @GetMapping(value="/getLifeTimeFlower")
+    public List<Flower> getLifeTimeFlower(@RequestParam("flowerId") Integer flowerId,@RequestParam("flowerType") String flowerType) throws ParseException {
+        return this.flowerRepository.findAllByIdAndFlowerType(flowerId, flowerType);
+    }
 
 }

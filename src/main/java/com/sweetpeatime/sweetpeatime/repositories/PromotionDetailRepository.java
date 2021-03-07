@@ -1,6 +1,5 @@
 package com.sweetpeatime.sweetpeatime.repositories;
 
-import com.sweetpeatime.sweetpeatime.entities.FlowerFormula;
 import com.sweetpeatime.sweetpeatime.entities.PromotionDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +20,6 @@ public interface PromotionDetailRepository extends JpaRepository<PromotionDetail
     List<PromotionDetail> findAllByFlowerFormulaIdAndFloristId(Integer flowerFormulaId, Integer floristId);
 
     PromotionDetail findOneByFlowerFormulaIdAndExpiryDate(Integer flowerFormulaId, LocalDateTime expiryDate);
+
+    PromotionDetail findAllById(Integer id);
 }

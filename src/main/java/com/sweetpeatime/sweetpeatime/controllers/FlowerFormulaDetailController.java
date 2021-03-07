@@ -39,6 +39,23 @@ public class FlowerFormulaDetailController {
         return this.flowerFormulaDetailRepository.findAll();
     }
 
+    @GetMapping(value="/getQuantityPromotion")
+    public List<FlowerFormulaDetail> getQuantityPromotion(@RequestParam("formulaId") Integer formulaId,@RequestParam("flowerId") Integer flowerId) {
+        //return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+        //System.out.println("test" + formulaId);
+        return this.flowerFormulaDetailRepository.findAllByFlowerFormulaIdAndFlowerId(formulaId, flowerId);
+    }
+
+    @GetMapping(value="/getCheckStock")
+    public List<Stock> getCheckStock(@RequestParam("flowerId") Integer flowerId) {
+        return this.stockRepository.findAllByFlowerId(flowerId);
+    }
+
+    @GetMapping(value="/getFormulary")
+    public List<FlowerFormulaDetail> getFormulary(){
+        return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(9);
+    }
+
     @GetMapping(value="/getFormulaDetail")
     public Integer getFlowerFormularDetail(@RequestParam("formulaId") Integer formulaId, @RequestParam("floristId") Integer floristId, @RequestParam("orderDate") String orderDate) throws ParseException {
         List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
