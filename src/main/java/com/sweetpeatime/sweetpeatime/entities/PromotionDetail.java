@@ -17,7 +17,7 @@ public class PromotionDetail {
     private String status;
     private Promotion promotion;
     private FlowerFormula flowerFormula;
-    private String locationName;
+    private Florist florist;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -91,11 +91,14 @@ public class PromotionDetail {
         this.flowerFormula = flowerFormula;
     }
 
-    public String getLocationName() {
-        return locationName;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floristId", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    public Florist getFlorist() {
+        return florist;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setFlorist(Florist florist) {
+        this.florist = florist;
     }
 }

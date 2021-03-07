@@ -74,18 +74,20 @@ public class StockController {
             List<Stock> stock = this.stockRepository.findByFlowerIdAndFloristIdOrderByLotAsc(ds.getFlowerId(), ds.getFloristId());
             Integer deleteQuantity = ds.getDeleteQuantity();
             for (Stock s: stock) {
-                if (deleteQuantity > s.getQuantity()) {
-                    s.setQuantity(0);
-                    deleteQuantity = deleteQuantity - s.getQuantity();
-                    this.stockRepository.saveAndFlush(s);
-                } else if (deleteQuantity < s.getQuantity()) {
-                    s.setQuantity(s.getQuantity() - deleteQuantity);
-                    this.stockRepository.saveAndFlush(s);
-                    return;
-                } else {
-                    s.setQuantity(0);
-                    this.stockRepository.saveAndFlush(s);
-                    return;
+                if (s.getQuantity() != 0) {
+                    if (deleteQuantity > s.getQuantity()) {
+                        s.setQuantity(0);
+                        deleteQuantity = deleteQuantity - s.getQuantity();
+                        this.stockRepository.saveAndFlush(s);
+                    } else if (deleteQuantity < s.getQuantity()) {
+                        s.setQuantity(s.getQuantity() - deleteQuantity);
+                        this.stockRepository.saveAndFlush(s);
+                        break;
+                    } else {
+                        s.setQuantity(0);
+                        this.stockRepository.saveAndFlush(s);
+                        break;
+                    }
                 }
             }
         }
