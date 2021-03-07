@@ -20,6 +20,7 @@ public class PromotionDetailLog {
     private String locationName;
     private Integer sequence;
     private String promotionType;
+    private Florist florist;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,5 +116,15 @@ public class PromotionDetailLog {
 
     public void setPromotionType(String promotionType) {
         this.promotionType = promotionType;
+    }
+
+    @ManyToOne(targetEntity= Florist.class)
+    @JoinColumn(name = "floristId", referencedColumnName = "id")
+    public Florist getFlorist() {
+        return florist;
+    }
+
+    public void setFlorist(Florist florist) {
+        this.florist = florist;
     }
 }

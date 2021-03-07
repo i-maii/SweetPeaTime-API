@@ -1,15 +1,17 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
-import com.sweetpeatime.sweetpeatime.entities.FlowerFormulaDetail;
-import com.sweetpeatime.sweetpeatime.entities.FlowerQuantityAvailableDto;
-import com.sweetpeatime.sweetpeatime.entities.Stock;
+import com.sweetpeatime.sweetpeatime.entities.*;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerFormulaDetailRepository;
 import com.sweetpeatime.sweetpeatime.repositories.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -27,6 +29,23 @@ public class FlowerFormulaDetailController {
     @GetMapping(value="/getAll")
     public List<FlowerFormulaDetail> getAll() {
         return this.flowerFormulaDetailRepository.findAll();
+    }
+
+    @GetMapping(value="/getQuantityPromotion")
+    public List<FlowerFormulaDetail> getQuantityPromotion(@RequestParam("formulaId") Integer formulaId,@RequestParam("flowerId") Integer flowerId) {
+        //return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+        //System.out.println("test" + formulaId);
+        return this.flowerFormulaDetailRepository.findAllByFlowerFormulaIdAndFlowerId(formulaId, flowerId);
+    }
+
+    @GetMapping(value="/getCheckStock")
+    public List<Stock> getCheckStock(@RequestParam("flowerId") Integer flowerId) {
+        return this.stockRepository.findAllByFlowerId(flowerId);
+    }
+
+    @GetMapping(value="/getFormulary")
+    public List<FlowerFormulaDetail> getFormulary(){
+        return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(9);
     }
 
     @GetMapping(value="/getFormulaDetail")

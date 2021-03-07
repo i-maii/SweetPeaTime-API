@@ -1,7 +1,6 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 @Entity
@@ -13,7 +12,6 @@ public class Stock {
     private Integer quantity;
     private String unit;
     private Date lot;
-    private Integer reserve;
     private Florist florist;
 
     @Id
@@ -60,14 +58,6 @@ public class Stock {
         this.lot = lot;
     }
 
-    public Integer getReserve() {
-        return reserve;
-    }
-
-    public void setReserve(Integer reserve) {
-        this.reserve = reserve;
-    }
-
     @ManyToOne(targetEntity= Florist.class)
     @JoinColumn(name = "floristId", referencedColumnName = "id")
     public Florist getFlorist() {
@@ -77,4 +67,5 @@ public class Stock {
     public void setFlorist(Florist florist) {
         this.florist = florist;
     }
+
 }

@@ -18,6 +18,7 @@ public class PromotionDetail {
     private Promotion promotion;
     private FlowerFormula flowerFormula;
     private String locationName;
+    private Florist florist;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,5 +98,15 @@ public class PromotionDetail {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    @ManyToOne(targetEntity= Florist.class)
+    @JoinColumn(name = "floristId", referencedColumnName = "id")
+    public Florist getFlorist() {
+        return florist;
+    }
+
+    public void setFlorist(Florist florist) {
+        this.florist = florist;
     }
 }
