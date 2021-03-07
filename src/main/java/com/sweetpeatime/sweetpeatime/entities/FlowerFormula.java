@@ -16,6 +16,8 @@ public class FlowerFormula {
     private String imagePath;
     private String occasion;
     private Integer quantityAvailable;
+    private String category;
+    private String color;
 
     public FlowerFormula(){}
 
@@ -81,5 +83,13 @@ public class FlowerFormula {
 
     public void setQuantityAvailable(Integer quantityAvailable) {
         this.quantityAvailable = quantityAvailable;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }
