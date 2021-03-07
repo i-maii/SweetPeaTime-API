@@ -150,10 +150,20 @@ public class SalesOrderController {
 
            //decrease stock
            for (FlowerFormulaDetail f: flowerFormulaDetail) {
-               Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
-               Integer quantity = stock.getQuantity() - (f.getQuantity() * deleteStock);
-               stock.setQuantity(quantity);
-               this.stockRepository.saveAndFlush(stock);
+               List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
+               int temp = f.getQuantity() * flowerMultipleDto.getOrderTotal();
+               for (Stock stock : stocks) {
+                   if (temp >= stock.getQuantity()) {
+                       temp -= stock.getQuantity();
+                       stock.setQuantity(temp);
+                       this.stockRepository.saveAndFlush(stock);
+                   } else {
+                       temp = stock.getQuantity() - temp;
+                       stock.setQuantity(temp);
+                       this.stockRepository.saveAndFlush(stock);
+                       break;
+                   }
+               }
            }
 
            //create salesorderDetail
@@ -220,8 +230,9 @@ public class SalesOrderController {
     }
 
     @PostMapping(value = "/cancelSalesOrder")
-    public void cancelSalesOrder(@RequestBody List<SalesOrderDetail> salesOrderDetails) throws ParseException {
+    public void cancelSalesOrder(@RequestBody Integer salesOrderId) throws ParseException {
 
+        List<SalesOrderDetail> salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrderId);
         for (SalesOrderDetail salesOrderDetail : salesOrderDetails) {
             List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(salesOrderDetail.getFlowerFormula().getId());
 
@@ -258,7 +269,7 @@ public class SalesOrderController {
 //            }
             } else {
                 for (FlowerFormulaDetail f: flowerFormulaDetail) {
-                    Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
+                    Stock stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotDesc(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
                     Integer quantity = stock.getQuantity() + (f.getQuantity() * salesOrderDetail.getQuantity());
                     stock.setQuantity(quantity);
                     this.stockRepository.saveAndFlush(stock);

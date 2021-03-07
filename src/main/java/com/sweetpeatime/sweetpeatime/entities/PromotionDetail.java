@@ -12,7 +12,7 @@ import java.util.Date;
 public class PromotionDetail {
     private Integer id;
     private Double profit;
-    private Double price;
+    private Integer price;
     private Integer quantity;
     private Integer quantitySold;
     private String status;
@@ -40,11 +40,11 @@ public class PromotionDetail {
         this.profit = profit;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

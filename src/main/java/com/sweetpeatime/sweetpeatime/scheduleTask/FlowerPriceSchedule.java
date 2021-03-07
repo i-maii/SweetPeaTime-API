@@ -59,7 +59,7 @@ public class FlowerPriceSchedule {
         }
 
         List<FlowerFormula> flowerFormulas = this.flowerFormulaRepository.findAll();
-        double flowerFormulaPrice = 0;
+        Integer flowerFormulaPrice = 0;
 
         for (FlowerFormula flowerFormula: flowerFormulas) {
             List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormula.getId());

@@ -57,27 +57,6 @@ public class FlowerFormulaDetailController {
             }
         }
 
-//        for(FlowerFormulaDetail flowerFormulaDetail: flowerFormulaDetails){
-//            Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(flowerFormulaDetail.getFlower().getFlowerId(), floristId);
-//            if(stock != null){
-//                stocks.add(stock);
-//            }else{
-//                break;
-//            }
-//        }
-//        if(stocks.size() == flowerFormulaDetails.size()){
-//            for(int i = 0; i < stocks.size(); i++){
-//                int temp = stocks.get(i).getQuantity()/flowerFormulaDetails.get(i).getQuantity();
-//                if(temp != 0){
-//                    available = Math.min(available, temp);
-//                }else{
-//                    available = 0;
-//                }
-//            }
-//        }else{
-//            available = 0;
-//        }
-
         return available;
     }
 
