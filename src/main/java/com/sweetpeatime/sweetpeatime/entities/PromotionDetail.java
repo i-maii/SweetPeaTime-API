@@ -104,6 +104,7 @@ public class PromotionDetail {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floristId", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public Florist getFlorist() {
         return florist;
     }
