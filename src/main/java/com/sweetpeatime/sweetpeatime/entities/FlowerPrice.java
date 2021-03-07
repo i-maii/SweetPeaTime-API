@@ -9,7 +9,7 @@ public class FlowerPrice {
     private Integer id;
     private Integer quantitySaleUnit;
     private String saleUnit;
-    private Double price;
+    private Integer price;
     private Flower flower;
 
     @Id
@@ -38,11 +38,11 @@ public class FlowerPrice {
         this.saleUnit = saleUnit;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

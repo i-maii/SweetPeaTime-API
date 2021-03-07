@@ -12,10 +12,11 @@ public class FlowerFormula {
     private String name;
     private String size;
     private String pattern;
-    private Double price;
+    private Integer price;
     private String imagePath;
     private String occasion;
     private Integer quantityAvailable;
+    private String formulaType;
 
     public FlowerFormula(){}
 
@@ -51,11 +52,11 @@ public class FlowerFormula {
         this.pattern = pattern;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -81,5 +82,13 @@ public class FlowerFormula {
 
     public void setQuantityAvailable(Integer quantityAvailable) {
         this.quantityAvailable = quantityAvailable;
+    }
+
+    public String getFormulaType() {
+        return formulaType;
+    }
+
+    public void setFormulaType(String formulaType) {
+        this.formulaType = formulaType;
     }
 }

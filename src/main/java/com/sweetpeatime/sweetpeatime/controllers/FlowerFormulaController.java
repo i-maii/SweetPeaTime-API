@@ -1,8 +1,7 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
-import com.sweetpeatime.sweetpeatime.entities.FlowerFormula;
-import com.sweetpeatime.sweetpeatime.entities.PriceOfSalesOrder;
-import com.sweetpeatime.sweetpeatime.repositories.FlowerFormulaRepository;
+import com.sweetpeatime.sweetpeatime.entities.*;
+import com.sweetpeatime.sweetpeatime.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Controller
@@ -21,11 +26,31 @@ public class FlowerFormulaController {
     @Autowired
     FlowerFormulaRepository flowerFormulaRepository;
 
+    @Autowired
+    FlowerRepository flowerRepository;
+
+    @Autowired
+    FlowerFormulaDetailRepository flowerFormulaDetailRepository;
+
+    @Autowired
+    FlowerPriceRepository flowerPriceRepository;
+
+    @Autowired
+    ConfigurationRepository configurationRepository;
+
+    @Autowired
+    PromotionDetailRepository promotionDetailRepository;
+
+    @Autowired
+    PromotionProfitRepository promotionProfitRepository;
+
     @PersistenceContext
     EntityManager entityManager;
 
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     @GetMapping(value="/getAll")
-    public List<FlowerFormula> getAllFlowerFormular() {
+    public List<FlowerFormula> getAllFlowerFormula() {
         return this.flowerFormulaRepository.findAll();
     }
 
@@ -33,35 +58,121 @@ public class FlowerFormulaController {
     public PriceOfSalesOrder getQuantityAvailable(
             @RequestParam("formulaId") Integer formulaId,
             @RequestParam("floristId") Integer floristId,
-            @RequestParam("totalOrder") Integer totalOrder) {
+            @RequestParam("totalOrder") Integer totalOrder,
+            @RequestParam("flowerPrice") Integer flowerPrice,
+            @RequestParam("receiveDateTime") String receiveDateTime) throws ParseException {
+        Date date = this.simpleDateFormat.parse(receiveDateTime);
         PriceOfSalesOrder priceOfSalesOrder = new PriceOfSalesOrder();
-        if(totalOrder == 0){
-            priceOfSalesOrder.setFlowerPrice(0.0);
-            priceOfSalesOrder.setFeePrice(0.0);
-            priceOfSalesOrder.setTotalPrice(0.0);
-        }else{
-            int flowerPrice = this.flowerFormulaRepository.getFlowerPrice(formulaId);
-            double shippingFee = 0;
+        List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(formulaId, date);
+        Integer flowerPrices = 0;
+        Integer percentProfit = 0;
 
-            if(floristId == 1){
-                shippingFee = 100;
-            }else{
-                shippingFee = 200;
+        List<PromotionProfit> promotionProfits = this.promotionProfitRepository.findAll();
+
+        if (promotionDetails != null) {
+            int countTotal = 0;
+            for (PromotionDetail promotionDetail : promotionDetails) {
+                countTotal += promotionDetail.getQuantity();
             }
+            for (int i = 0; i < totalOrder; i++) {
+                if (promotionDetails.size() > 1) {
+                    PromotionDetail promotionDetail = new PromotionDetail();
+                    int temp = 0;
+                    for (int j = 0; j < promotionDetails.size() - 1; j++) {
+                        if (promotionDetails.get(temp).getExpiryDate().before(promotionDetails.get(j + 1).getExpiryDate()) && promotionDetail.getQuantity() != 0) {
+                            promotionDetail = promotionDetails.get(temp);
+                        } else {
+                            promotionDetail = promotionDetails.get(j + 1);
+                            temp = j + 1;
+                        }
+                    }
 
-            double totalPrice = (flowerPrice * totalOrder) + shippingFee;
+                    if (promotionDetail.getQuantity() != 0) {
+                        long diffInMillies = Math.abs(promotionDetail.getExpiryDate().getTime() - date.getTime());
+                        long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
-            priceOfSalesOrder.setFlowerPrice((double) flowerPrice);
-            priceOfSalesOrder.setFeePrice(shippingFee);
-            priceOfSalesOrder.setTotalPrice(totalPrice);
+                        for (PromotionProfit promotionProfit : promotionProfits) {
+                            if (diff == promotionProfit.getAge()) {
+                                percentProfit = promotionProfit.getProfit();
+                            }
+                        }
+
+                        List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+                        Integer flowerFormulaPrice = 0;
+                        for (FlowerFormulaDetail flowerFormulaDetail : flowerFormulaDetails) {
+                            FlowerPrice fp = this.flowerPriceRepository.findByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
+                            int unitQuantityUse = 1;
+                            int quantity = flowerFormulaDetail.getQuantity();
+                            while (quantity > fp.getQuantitySaleUnit()) {
+                                unitQuantityUse++;
+                                quantity = quantity - fp.getQuantitySaleUnit();
+                            }
+                            flowerFormulaPrice += fp.getPrice() * unitQuantityUse;
+                        }
+                        flowerFormulaPrice += (flowerFormulaPrice * percentProfit) / 100;
+
+                        if (flowerFormulaPrice % 100 != 0) {
+                            flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
+                        }
+                        flowerPrices = flowerFormulaPrice;
+                    }
+                } else  if (promotionDetails.size() == 1) {
+                    for (PromotionDetail promotionDetail : promotionDetails) {
+                        if (promotionDetail.getQuantity() != 0) {
+                            long diffInMillies = Math.abs(promotionDetail.getExpiryDate().getTime() - date.getTime());
+                            long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+                            for (PromotionProfit promotionProfit : promotionProfits) {
+                                if (diff == promotionProfit.getAge()) {
+                                    percentProfit = promotionProfit.getProfit();
+                                }
+                            }
+
+                            List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+                            Integer flowerFormulaPrice = 0;
+                            for (FlowerFormulaDetail flowerFormulaDetail : flowerFormulaDetails) {
+                                FlowerPrice fp = this.flowerPriceRepository.findByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
+                                int unitQuantityUse = 1;
+                                int quantity = flowerFormulaDetail.getQuantity();
+                                while (quantity > fp.getQuantitySaleUnit()) {
+                                    unitQuantityUse++;
+                                    quantity = quantity - fp.getQuantitySaleUnit();
+                                }
+                                flowerFormulaPrice += fp.getPrice() * unitQuantityUse;
+                            }
+                            flowerFormulaPrice += (flowerFormulaPrice * percentProfit) / 100;
+
+                            if (flowerFormulaPrice % 100 != 0) {
+                                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
+                            }
+                            flowerPrices = flowerFormulaPrice;
+                        } else {
+                            FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(formulaId);
+                            flowerPrices = flowerFormula.getPrice();
+                        }
+                    }
+                }
+            }
+        } else {
+            FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(formulaId);
+            flowerPrices = flowerFormula.getPrice();
         }
 
-        return priceOfSalesOrder;
-    }
+        double shippingFee = 0;
 
-    @GetMapping(value="/searchFlowerFormula")
-    public List<FlowerFormula> searchFlowerFormula() {
-        return this.flowerFormulaRepository.findAll();
+        if (floristId == 1) {
+            shippingFee = 100;
+        } else {
+            shippingFee = 200;
+        }
+        double totalPrice = (flowerPrices * totalOrder) + shippingFee;
+        totalPrice += flowerPrice;
+        flowerPrice += flowerPrices;
+        priceOfSalesOrder.setFlowerPrice((double) flowerPrice);
+        priceOfSalesOrder.setFeePrice(shippingFee);
+        priceOfSalesOrder.setTotalPrice(totalPrice);
+
+        return priceOfSalesOrder;
     }
 
     @PostMapping(value="/search")
@@ -118,6 +229,53 @@ public class FlowerFormulaController {
 
         List<FlowerFormula> flowerFormulas = selectQuery.getResultList();
 
+        return flowerFormulas;
+    }
+
+    @PostMapping(value="updateFlowerFormulaPrice")
+    public void updateFlowerFormulaPrice() {
+        List<FlowerFormula> flowerFormulas = this.flowerFormulaRepository.findAll();
+        Integer flowerFormulaPrice = 0;
+        Integer percentProfit = this.configurationRepository.findConfigurationsById(3).getValue();
+
+        for (FlowerFormula flowerFormula: flowerFormulas) {
+            List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormula.getId());
+            for (FlowerFormulaDetail flowerFormulaDetail: flowerFormulaDetails) {
+                FlowerPrice flowerPrice = this.flowerPriceRepository.findByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
+                int unitQuantityUse = 1;
+                int i = flowerFormulaDetail.getQuantity();
+                while (i > flowerPrice.getQuantitySaleUnit()) {
+                    unitQuantityUse++;
+                    i = i - flowerPrice.getQuantitySaleUnit();
+                }
+                flowerFormulaPrice += flowerPrice.getPrice() * unitQuantityUse;
+            }
+            flowerFormulaPrice += (flowerFormulaPrice*percentProfit) / 100;
+
+            if (flowerFormulaPrice % 100 != 0) {
+                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
+            }
+            flowerFormula.setPrice(flowerFormulaPrice);
+            this.flowerFormulaRepository.saveAndFlush(flowerFormula);
+            flowerFormulaPrice = 0;
+        }
+    }
+
+    @GetMapping(value = "/getflowerFormula")
+    public List<FlowerFormula> setFlowerFormula() {
+        List<FlowerFormula> flowerFormulasPromotion = new ArrayList<>();
+        List<FlowerFormula> flowerFormulas = new ArrayList<>();
+        flowerFormulasPromotion = this.flowerFormulaRepository.findAllByFlowerFormulaId();
+        flowerFormulas = this.flowerFormulaRepository.findAll();
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormulas.remove(flowerFormula);
+        }
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormula.setName(flowerFormula.getName() + " โปรโมชั่น");
+        }
+        for (FlowerFormula flowerFormula: flowerFormulasPromotion){
+            flowerFormulas.add(0, flowerFormula);
+        }
         return flowerFormulas;
     }
 }

@@ -9,5 +9,7 @@ public interface StockRepository extends JpaRepository<Stock, Integer>{
 
     Stock findStockByFlowerIdAndFloristId(Integer flowerId, Integer floristId);
 
-    List<Stock> findByFlowerIdAndFloristIdOrderByLotAsc(Integer flowerId, Integer floristId);
+    List<Stock> findAllByFlowerIdAndFloristIdOrderByLotAsc(Integer flowerId, Integer floristId);
+
+    Stock findAllByFlowerIdAndFloristIdOrderByLotDesc(Integer flowerId, Integer floristId);
 }

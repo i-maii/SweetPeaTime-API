@@ -71,7 +71,7 @@ public class StockController {
     @PostMapping("/deleteStock")
     public void deleteStockQuantity(@RequestBody List<DeleteStockDTO> deleteStock) {
         for (DeleteStockDTO ds: deleteStock) {
-            List<Stock> stock = this.stockRepository.findByFlowerIdAndFloristIdOrderByLotAsc(ds.getFlowerId(), ds.getFloristId());
+            List<Stock> stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(ds.getFlowerId(), ds.getFloristId());
             Integer deleteQuantity = ds.getDeleteQuantity();
             for (Stock s: stock) {
                 if (s.getQuantity() != 0) {

@@ -13,7 +13,7 @@ public class CreateSalesOrder {
     private String receiverPhone;
     private String receiverAddress;
     private Date receiveDate;
-    private Integer flowerFormular;
+    private Integer flowerFormula;
     private Integer flowerAvailable;
     private Integer flowerPrice;
     private Double deliveryFee;
@@ -104,12 +104,12 @@ public class CreateSalesOrder {
         this.receiveDate = receiveDate;
     }
 
-    public Integer getFlowerFormular() {
-        return flowerFormular;
+    public Integer getFlowerFormula() {
+        return flowerFormula;
     }
 
-    public void setFlowerFormular(Integer flowerFormular) {
-        this.flowerFormular = flowerFormular;
+    public void setFlowerFormula(Integer flowerFormula) {
+        this.flowerFormula = flowerFormula;
     }
 
     public Integer getFlowerAvailable() {

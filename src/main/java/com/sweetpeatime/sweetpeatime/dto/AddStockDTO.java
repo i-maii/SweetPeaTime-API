@@ -6,11 +6,11 @@ import com.sweetpeatime.sweetpeatime.entities.Flower;
 public class AddStockDTO {
     private Flower flower;
     private Integer quantity;
-    private Double price;
+    private Integer price;
     private String lot;
     private Florist florist;
 
-    public AddStockDTO(Flower flower, Integer quantity, Double price, String lot, Florist florist) {
+    public AddStockDTO(Flower flower, Integer quantity, Integer price, String lot, Florist florist) {
         this.flower = flower;
         this.quantity = quantity;
         this.price = price;
@@ -34,11 +34,11 @@ public class AddStockDTO {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
