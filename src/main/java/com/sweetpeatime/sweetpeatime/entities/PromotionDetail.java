@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -11,14 +12,15 @@ import javax.persistence.*;
 public class PromotionDetail {
     private Integer id;
     private Double profit;
-    private Double price;
+    private Integer price;
     private Integer quantity;
     private Integer quantitySold;
     private String status;
     private Promotion promotion;
     private FlowerFormula flowerFormula;
-    private String locationName;
+    private Date expiryDate;
     private Florist florist;
+    private String type;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +40,11 @@ public class PromotionDetail {
         this.profit = profit;
     }
 
-    public Double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -92,21 +94,30 @@ public class PromotionDetail {
         this.flowerFormula = flowerFormula;
     }
 
-    public String getLocationName() {
-        return locationName;
+    public Date getExpiryDate() {
+        return expiryDate;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
-    @ManyToOne(targetEntity= Florist.class)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floristId", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public Florist getFlorist() {
         return florist;
     }
 
     public void setFlorist(Florist florist) {
         this.florist = florist;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

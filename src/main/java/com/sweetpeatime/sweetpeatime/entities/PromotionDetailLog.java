@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "promotionDetailLog")
+@Table(name = "PromotionDetailLog")
 public class PromotionDetailLog {
     private Integer id;
     private Double profit;

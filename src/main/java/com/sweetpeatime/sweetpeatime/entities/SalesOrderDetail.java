@@ -22,7 +22,7 @@ public class SalesOrderDetail {
         this.id = id;
     }
 
-    @OneToOne(targetEntity= SalesOrder.class)
+    @ManyToOne(targetEntity= SalesOrder.class)
     @JoinColumn(name = "salesOrderId", referencedColumnName = "id")
     public SalesOrder getSalesOrder() {
         return salesOrder;
@@ -32,7 +32,7 @@ public class SalesOrderDetail {
         this.salesOrder = salesOrder;
     }
 
-    @OneToOne(targetEntity= FlowerFormula.class)
+    @ManyToOne(targetEntity= FlowerFormula.class)
     @JoinColumn(name = "flowerFormulaId", referencedColumnName = "id")
     public FlowerFormula getFlowerFormula() {
         return flowerFormula;

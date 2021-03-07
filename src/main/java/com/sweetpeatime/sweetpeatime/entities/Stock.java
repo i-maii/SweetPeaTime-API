@@ -1,8 +1,23 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
+import com.sweetpeatime.sweetpeatime.wrapper.StockWrapper;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@SqlResultSetMapping(
+        name="stockMapping",
+        classes={
+                @ConstructorResult(
+                        targetClass= StockWrapper.class,
+                        columns={
+                                @ColumnResult(name="flowerId", type = Integer.class),
+                                @ColumnResult(name="floristId", type = Integer.class),
+                                @ColumnResult(name="quantity", type = Integer.class)
+                        }
+                )
+        }
+)
 @Entity
 @Table(name="Stock")
 public class Stock {
@@ -13,6 +28,7 @@ public class Stock {
     private String unit;
     private Date lot;
     private Florist florist;
+    private FlowerPrice flowerPrice;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,4 +84,13 @@ public class Stock {
         this.florist = florist;
     }
 
+    @OneToOne(targetEntity = FlowerPrice.class)
+    @JoinColumn(name = "flowerPriceId", referencedColumnName = "id")
+    public FlowerPrice getFlowerPrice() {
+        return flowerPrice;
+    }
+
+    public void setFlowerPrice(FlowerPrice flowerPrice) {
+        this.flowerPrice = flowerPrice;
+    }
 }

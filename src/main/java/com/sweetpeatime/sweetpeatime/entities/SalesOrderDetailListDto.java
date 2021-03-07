@@ -3,8 +3,7 @@ package com.sweetpeatime.sweetpeatime.entities;
 import java.util.Date;
 import java.util.List;
 
-public class SalesOrderListDto {
-
+public class SalesOrderDetailListDto {
     private Integer id;
     private String customerName;
     private String customerLineFb;
@@ -14,13 +13,12 @@ public class SalesOrderListDto {
     private String receiverPhone;
     private String receiverAddress;
     private Date receiveDateTime;
-    List<FlowerMultipleDto> flowerMultipleDtoList;
     private Integer flowerPrice;
     private Double deliveryFee;
     private Double totalPrice;
-    private Integer florist;
     private String note;
     private String status;
+    List<SalesOrderDetail> salesOrderDetails;
 
     public Integer getId() {
         return id;
@@ -94,14 +92,6 @@ public class SalesOrderListDto {
         this.receiveDateTime = receiveDateTime;
     }
 
-    public List<FlowerMultipleDto> getFlowerMultipleDtoList() {
-        return flowerMultipleDtoList;
-    }
-
-    public void setFlowerMultipleDtoList(List<FlowerMultipleDto> flowerMultipleDtoList) {
-        this.flowerMultipleDtoList = flowerMultipleDtoList;
-    }
-
     public Integer getFlowerPrice() {
         return flowerPrice;
     }
@@ -126,14 +116,6 @@ public class SalesOrderListDto {
         this.totalPrice = totalPrice;
     }
 
-    public Integer getFlorist() {
-        return florist;
-    }
-
-    public void setFlorist(Integer florist) {
-        this.florist = florist;
-    }
-
     public String getNote() {
         return note;
     }
@@ -150,4 +132,11 @@ public class SalesOrderListDto {
         this.status = status;
     }
 
+    public List<SalesOrderDetail> getSalesOrderDetails() {
+        return salesOrderDetails;
+    }
+
+    public void setSalesOrderDetails(List<SalesOrderDetail> salesOrderDetails) {
+        this.salesOrderDetails = salesOrderDetails;
+    }
 }
