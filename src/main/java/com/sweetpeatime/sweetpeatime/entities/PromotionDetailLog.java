@@ -17,7 +17,6 @@ public class PromotionDetailLog {
     private String status;
     private Promotion promotion;
     private FlowerFormula flowerFormula;
-    private String locationName;
     private Integer sequence;
     private String promotionType;
     private Florist florist;
@@ -92,14 +91,6 @@ public class PromotionDetailLog {
 
     public void setFlowerFormula(FlowerFormula flowerFormula) {
         this.flowerFormula = flowerFormula;
-    }
-
-    public String getLocationName() {
-        return locationName;
-    }
-
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
     }
 
     public Integer getSequence() {
