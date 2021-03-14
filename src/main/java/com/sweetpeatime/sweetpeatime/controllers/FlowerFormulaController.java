@@ -49,143 +49,80 @@ public class FlowerFormulaController {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    public PromotionDetail findNearlyDate(List<PromotionDetail> promotionDetails){
+        PromotionDetail newPromotionDetail = new PromotionDetail();
+        int temp = 0;
+        //select nearly date
+        for (int j = 0; j < promotionDetails.size() - 1; j++) {
+            if (promotionDetails.get(temp).getExpiryDate().before(promotionDetails.get(j + 1).getExpiryDate())) {
+                newPromotionDetail = promotionDetails.get(temp);
+            } else {
+                newPromotionDetail = promotionDetails.get(j + 1);
+                temp = j + 1;
+            }
+        }
+        return newPromotionDetail;
+    }
     @GetMapping(value="/getAll")
     public List<FlowerFormula> getAllFlowerFormula() {
         return this.flowerFormulaRepository.findAll();
     }
 
-    @GetMapping(value="/priceOfSalesOrder")
-    public PriceOfSalesOrder getQuantityAvailable(
-            @RequestParam("formulaId") Integer formulaId,
-            @RequestParam("floristId") Integer floristId,
-            @RequestParam("totalOrder") Integer totalOrder,
-            @RequestParam("flowerPrice") Integer flowerPrice,
-            @RequestParam("receiveDateTime") String receiveDateTime) throws ParseException {
-        Date date = this.simpleDateFormat.parse(receiveDateTime);
+    @PostMapping(value="/priceOfSalesOrder")
+    public PriceOfSalesOrder getQuantityAvailable(@RequestBody List<FlowerPriceDto> flowerPriceDtos) throws ParseException {
         PriceOfSalesOrder priceOfSalesOrder = new PriceOfSalesOrder();
-        List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(formulaId, date);
         Integer flowerPrices = 0;
-        Integer percentProfit = 0;
+        for (FlowerPriceDto flowerPriceDto : flowerPriceDtos) {
+            Date date = this.simpleDateFormat.parse(flowerPriceDto.getReceiveDate());
+            List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(flowerPriceDto.getFormulaId(), date);
 
-        FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(formulaId);
-        List<PromotionProfit> promotionProfits = this.promotionProfitRepository.findAll();
+            FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(flowerPriceDto.getFormulaId());
 
-        if (promotionDetails != null) {
-            int countTotal = 0;
-            for (PromotionDetail promotionDetail : promotionDetails) {
-                countTotal += promotionDetail.getQuantity();
-            }
-            if (countTotal >= totalOrder) {
-                for (int i = 0; i < totalOrder; i++) {
-                    if (promotionDetails.size() > 1) {
-                        PromotionDetail promotionDetail = new PromotionDetail();
-                        int temp = 0;
+            for (int i = 0; i < flowerPriceDto.getTotalOrder(); i++) {
+                if (promotionDetails.size() != 0) {
+                    promotionDetails.removeIf(promotionDetail -> promotionDetail.getQuantity() == 0);
+                    if (promotionDetails.size() != 0) {
+                        if (promotionDetails.size() > 1) {
+                            PromotionDetail newPromotionDetail = new PromotionDetail();
 
+                            newPromotionDetail = findNearlyDate(promotionDetails);
 
-                        //select nearly date
-                        for (int j = 0; j < promotionDetails.size() - 1; j++) {
-                            if (promotionDetails.get(temp).getExpiryDate().before(promotionDetails.get(j + 1).getExpiryDate()) && promotionDetail.getQuantity() != 0) {
-                                promotionDetail = promotionDetails.get(temp);
+                            if (newPromotionDetail.getQuantity() - 1 == 0) {
+                                flowerPrices += newPromotionDetail.getPrice();
+                                promotionDetails.remove(newPromotionDetail);
                             } else {
-                                promotionDetail = promotionDetails.get(j + 1);
-                                temp = j + 1;
+                                flowerPrices += newPromotionDetail.getPrice();
                             }
+
+                        } else if (promotionDetails.size() == 1) {
+                            //find nearly date
+                            for (PromotionDetail promotionDetail : promotionDetails) {
+                                flowerPrices += promotionDetail.getPrice();
+                            }
+                        } else {
+                            flowerPrices += flowerFormula.getPrice();
                         }
-
-                        //set profit for promotion
-                        if (promotionDetail.getQuantity() != 0) {
-                            long diffInMillies = Math.abs(promotionDetail.getExpiryDate().getTime() - date.getTime());
-                            long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-
-                            if (flowerFormula.getFormulaType().equals("ดอกไม้แห้ง")) {
-                                percentProfit = promotionProfits.get(4).getProfit();
-                            } else {
-                                for (PromotionProfit promotionProfit : promotionProfits) {
-                                    if (diff == promotionProfit.getAge()) {
-                                        percentProfit = promotionProfit.getProfit();
-                                    }
-                                }
-                            }
-
-                            //delete from stock
-                            List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
-                            Integer flowerFormulaPrice = 0;
-                            for (FlowerFormulaDetail flowerFormulaDetail : flowerFormulaDetails) {
-                                FlowerPrice fp = this.flowerPriceRepository.findByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
-                                int unitQuantityUse = 1;
-                                int quantity = flowerFormulaDetail.getQuantity();
-                                while (quantity > fp.getQuantitySaleUnit()) {
-                                    unitQuantityUse++;
-                                    quantity = quantity - fp.getQuantitySaleUnit();
-                                }
-                                flowerFormulaPrice += fp.getPrice() * unitQuantityUse;
-                            }
-                            flowerFormulaPrice += (flowerFormulaPrice * percentProfit) / 100;
-
-                            //calculate flower price
-                            if (flowerFormulaPrice % 100 != 0) {
-                                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
-                            }
-                            flowerPrices = flowerFormulaPrice;
-                        }
-                    } else  if (promotionDetails.size() == 1) {
-
-                        //find nearly date
-                        for (PromotionDetail promotionDetail : promotionDetails) {
-                            if (promotionDetail.getQuantity() != 0) {
-                                long diffInMillies = Math.abs(promotionDetail.getExpiryDate().getTime() - date.getTime());
-                                long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-
-                                for (PromotionProfit promotionProfit : promotionProfits) {
-                                    if (diff == promotionProfit.getAge()) {
-                                        percentProfit = promotionProfit.getProfit();
-                                    }
-                                }
-
-                                //delete from stock
-                                List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
-                                Integer flowerFormulaPrice = 0;
-                                for (FlowerFormulaDetail flowerFormulaDetail : flowerFormulaDetails) {
-                                    FlowerPrice fp = this.flowerPriceRepository.findByFlowerId(flowerFormulaDetail.getFlower().getFlowerId());
-                                    int unitQuantityUse = 1;
-                                    int quantity = flowerFormulaDetail.getQuantity();
-                                    while (quantity > fp.getQuantitySaleUnit()) {
-                                        unitQuantityUse++;
-                                        quantity = quantity - fp.getQuantitySaleUnit();
-                                    }
-                                    flowerFormulaPrice += fp.getPrice() * unitQuantityUse;
-                                }
-                                flowerFormulaPrice += (flowerFormulaPrice * percentProfit) / 100;
-
-                                //calculat flower price
-                                if (flowerFormulaPrice % 100 != 0) {
-                                    flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
-                                }
-                                flowerPrices = flowerFormulaPrice;
-                            } else {
-                                flowerPrices = flowerFormula.getPrice();
-                            }
-                        }
+                    } else {
+                        flowerPrices += flowerFormula.getPrice();
                     }
+                } else {
+                    flowerPrices += flowerFormula.getPrice();
                 }
             }
 
-        } else {
-            flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(formulaId);
-            flowerPrices = flowerFormula.getPrice();
+
         }
 
         double shippingFee = 0;
 
-        if (floristId == 1) {
+        if (flowerPriceDtos.get(0).getFloristId() == 1) {
             shippingFee = 100;
         } else {
             shippingFee = 200;
         }
-        double totalPrice = (flowerPrices * totalOrder) + shippingFee;
-        totalPrice += flowerPrice;
-        flowerPrice += flowerPrices;
-        priceOfSalesOrder.setFlowerPrice((double) flowerPrice);
+
+        double totalPrice = flowerPrices + shippingFee;
+        priceOfSalesOrder.setFlowerPrice((double) flowerPrices);
         priceOfSalesOrder.setFeePrice(shippingFee);
         priceOfSalesOrder.setTotalPrice(totalPrice);
 

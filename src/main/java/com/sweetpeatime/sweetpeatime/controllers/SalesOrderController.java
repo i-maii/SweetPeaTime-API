@@ -2,6 +2,7 @@ package com.sweetpeatime.sweetpeatime.controllers;
 
 import com.sweetpeatime.sweetpeatime.entities.*;
 import com.sweetpeatime.sweetpeatime.repositories.*;
+import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,9 @@ public class SalesOrderController {
 
     @Autowired
     private PromotionRepository promotionRepository;
+
+    @Autowired
+    private PromotionProfitRepository promotionProfitRepository;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -125,7 +129,7 @@ public class SalesOrderController {
                        }
 
                        if (promotionDetail.getQuantity() != 0){
-                           if (!promotionDetail.getType().equals("ช่อ")){
+                           if (promotionDetails.get(0).getType() == null){
                                deleteStock++;
                            }
                            promotionDetail.setQuantity(promotionDetail.getQuantity() - i);
@@ -134,9 +138,10 @@ public class SalesOrderController {
                        }
                    } else {
                        if (promotionDetails.get(0).getQuantity() != 0){
-                           if (!promotionDetails.get(0).getType().equals("ช่อ")){
+                           if (promotionDetails.get(0).getType() == null){
                                deleteStock++;
                            }
+
                            promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - i);
                            promotionDetails.get(0).setQuantitySold(promotionDetails.get(0).getQuantitySold() + i);
                            this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
@@ -232,16 +237,12 @@ public class SalesOrderController {
     @PostMapping(value = "/cancelSalesOrder")
     public void cancelSalesOrder(@RequestBody Integer salesOrderId) throws ParseException {
 
+        PromotionProfit promotionProfit = this.promotionProfitRepository.findOneByAge(1);
         List<SalesOrderDetail> salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrderId);
         for (SalesOrderDetail salesOrderDetail : salesOrderDetails) {
             List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(salesOrderDetail.getFlowerFormula().getId());
 
             if (salesOrderDetail.getSalesOrder().getStatus().equals("จัดเสร็จแล้ว")) {
-//            PromotionDetail promotionDetail = this.promotionDetailRepository.findOneByFlowerFormulaIdAndExpiryDate(salesOrderDetail.getFlowerFormula().getId(), LocalDateTime.from(salesOrderDetail.getSalesOrder().getReceiverDateTime().toInstant()).plusDays(1));
-//            if (promotionDetail.getFlowerFormula().getId() == salesOrderDetail.getFlowerFormula().getId() && promotionDetail.getExpiryDate() == salesOrderDetail.getSalesOrder().getDeliveryDateTime()) {
-//                promotionDetail.setQuantity(promotionDetail.getQuantity() + salesOrderDetail.getQuantity());
-//                this.promotionDetailRepository.saveAndFlush(promotionDetail);
-//            } else {
                 String dateInStr = this.simpleDateFormat.format(new Date());
                 Date date = this.simpleDateFormat.parse(dateInStr);
 
@@ -256,14 +257,14 @@ public class SalesOrderController {
 
                 PromotionDetail newPromotionDetail = new PromotionDetail();
                 newPromotionDetail.setProfit(salesOrderDetail.getSalesOrder().getTotalPrice());
-                newPromotionDetail.setPrice(salesOrderDetail.getFlowerFormula().getPrice());
+                newPromotionDetail.setPrice(salesOrderDetail.getFlowerFormula().getPrice() - (salesOrderDetail.getFlowerFormula().getPrice() * (promotionProfit.getProfit() / 100)));
                 newPromotionDetail.setQuantity(salesOrderDetail.getQuantity());
                 newPromotionDetail.setQuantitySold(0);
                 newPromotionDetail.setStatus("active");
                 newPromotionDetail.setPromotion(promotionCreated);
                 newPromotionDetail.setFlowerFormula(salesOrderDetail.getFlowerFormula());
                 newPromotionDetail.setExpiryDate(c.getTime());
-                newPromotionDetail.setType("ช่อ");
+                newPromotionDetail.setType("ยกเลิกช่อ");
 
                 this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
 //            }
