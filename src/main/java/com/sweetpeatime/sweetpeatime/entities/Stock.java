@@ -93,4 +93,5 @@ public class Stock {
     public void setFlowerPrice(FlowerPrice flowerPrice) {
         this.flowerPrice = flowerPrice;
     }
+
 }

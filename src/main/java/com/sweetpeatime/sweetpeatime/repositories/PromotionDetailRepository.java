@@ -19,6 +19,9 @@ public interface PromotionDetailRepository extends JpaRepository<PromotionDetail
 
     List<PromotionDetail> findAllByFlowerFormulaIdAndFloristId(Integer flowerFormulaId, Integer floristId);
 
+
+    List<PromotionDetail> findAllByPromotionId(Integer promotionId);
+
     PromotionDetail findOneByFlowerFormulaIdAndExpiryDate(Integer flowerFormulaId, LocalDateTime expiryDate);
 
     PromotionDetail findAllById(Integer id);
