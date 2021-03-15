@@ -32,7 +32,8 @@ public class CalculationController {
             for (i = 0; i < flowerFormulaPrice.size(); i++)
                 totalPrice = totalPrice + flowerFormulaPrice.get(i).intValue();
         }
-        return totalPrice + deliveryFee;
+        totalPrice = totalPrice + deliveryFee;
+        return totalPrice;
     }
 
     @GetMapping(value="/calculateDeliveryFee")

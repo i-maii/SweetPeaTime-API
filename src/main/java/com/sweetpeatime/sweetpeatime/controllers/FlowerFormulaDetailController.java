@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +76,47 @@ public class FlowerFormulaDetailController {
         }
 
         return available;
+    }
+
+    @GetMapping(value="/getFormulaDetailFromStock")
+    public Integer getFlowerFormularDetailFromStock(@RequestParam("formulaId") Integer formulaId, @RequestParam("floristId") Integer floristId, @RequestParam("orderDate") String orderDate) throws ParseException {
+        List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+        List<Stock> stocks = new ArrayList<>();
+        int quantityAvailablePerFlower = 0;
+        int quantityAvailablePerFormula = 0;
+
+        int stockQuantity = 0;
+        Date date = this.simpleDateFormat.parse(orderDate);
+
+
+        Calendar lotDate = Calendar.getInstance();
+
+        for (FlowerFormulaDetail f: flowerFormulaDetails) {
+            stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), floristId);
+            for (Stock s: stocks)
+            {
+                lotDate.setTime(s.getLot());
+                lotDate.add(Calendar.DATE,f.getFlower().getLifeTime());
+                Date expireDate = lotDate.getTime();
+                if (date.before(expireDate))
+                {
+                    stockQuantity = stockQuantity + s.getQuantity();
+                }
+            }
+            quantityAvailablePerFlower = stockQuantity / f.getQuantity();
+            if (quantityAvailablePerFormula == 0)
+            {
+                quantityAvailablePerFormula = quantityAvailablePerFlower;
+            }
+            else {
+                if (quantityAvailablePerFormula > quantityAvailablePerFlower)
+                {
+                    quantityAvailablePerFormula = quantityAvailablePerFlower;
+                }
+            }
+        }
+
+        return quantityAvailablePerFormula;
     }
 
 }
