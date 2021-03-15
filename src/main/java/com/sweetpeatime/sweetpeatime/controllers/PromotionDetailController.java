@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.util.stream.Collectors;
+
+import static java.lang.Math.decrementExact;
+import static java.lang.Math.floor;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -31,6 +34,15 @@ public class PromotionDetailController {
 
     @Autowired
     PromotionProfitRepository promotionProfitRepository;
+
+    @Autowired
+    PromotionRepository promotionRepository;
+
+    @Autowired
+    ConfigurationsRepository configurationsRepository;
+
+    @Autowired
+    FloristRepository floristRepository;
 
     //@GetMapping(value = "/currentPromotion")
     @GetMapping(value = "/currentPromotion")
@@ -57,101 +69,194 @@ public class PromotionDetailController {
         String dateInStr = this.dateFormat.format(new Date());
         Date date = this.dateFormat.parse(dateInStr);
         List<PromotionDetailDto> promotionDetailDtos = new ArrayList<>();
+        List<StockDto> flowerRemains = new ArrayList<>();
         int flowerLifeTime = 0;
         int profitFlower = 0;
         int calProfit = 0;
+        int numPromotion = 0;
         String typeFlower = null;
 
-        List<Stock> stocks = this.stockRepository.findAllByFloristId(1);
-        List<Stock> newStocks = new ArrayList<>();
-        List<Integer> newFlower = new ArrayList<>();
-        outer:
-        for(Stock stock: stocks){
-            String rr = stock.getLot().toString();
-            Date d2 = this.dateFormat.parse(rr);
-            long chkExp = date.getTime()  - d2.getTime();
-            int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
-            //System.out.println("Test 2 : " + diffDays);
-            //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
-            List<Flower> flowers = this.flowerRepository.findAllById(stock.getFlower().getFlowerId());
-            for (Flower flower: flowers){
-                flowerLifeTime = flower.getLifeTime();
-                typeFlower = flower.getFlowerType();
-            }
+        LocalDate currentDate = LocalDate.now();
+        LocalDate dateTime = currentDate.minus(7, ChronoUnit.DAYS);
+        Date dateReverse = this.dateFormat.parse(String.valueOf(dateTime));
 
-            int expired = flowerLifeTime - diffDays;
-            List<PromotionProfit> promotionProfits = this.promotionProfitRepository.findAllByAgeAndFlowerType(expired, typeFlower);
-            for (PromotionProfit profit: promotionProfits){
-                if (profit != null) {
-                    //System.out.println("อายุคงเหลือ = " + expired);
-                    profitFlower = profit.getProfit();
-                }else{
-                    break;
-                }
-            }
+        LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
+        LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
+        Date dateFrom = this.dateFormat.parse(String.valueOf(dateTime1));
+        Date dateTo = this.dateFormat.parse(String.valueOf(dateTime2));
 
-            if(expired > 0 && expired <= 3){
-//                System.out.println("profitFlower = " + profitFlower);
-//                System.out.println("Diff Date : " + diffDays + ", Test : " + stock.getFlower().getFlowerName());
-//                System.out.println("-------------------------------");
-                newStocks.add(stock);
-                newFlower.add(stock.getFlower().getFlowerId());
-            }else{
-                continue outer;
-            }
+        System.out.println("dateReverse : " + dateReverse);
+        System.out.println("dateFrom : " + dateFrom);
+        System.out.println("dateTo : " + dateTo);
+        List<Promotion> listPromotion = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateFrom, dateTo);
+
+        //Get number of promotion
+        List<Configurations> config = this.configurationsRepository.findAllByName("NUMBER_OF_PROMOTION");
+        for (Configurations c: config){
+            numPromotion = c.getValue();
         }
 
-        //System.out.println("newFlower : " + newFlower);
-        List<FlowerFormulaDetail> flower = new ArrayList<>();
-        for (Stock qStock: newStocks){
-//            System.out.println("Flower ID : " + qStock.getFlower().getFlowerId());
-//            System.out.println("Name : " + qStock.getFlower().getFlowerName());
-//            System.out.println("จำนวนคงเหลือใน Stock : " + qStock.getQuantity());
-            List<FlowerFormulaDetail> flowerList  = this.flowerFormulaDetailRepository.findAllByFlowerIdAndQuantityLessThanEqualOrderByQuantityDesc(qStock.getFlower().getFlowerId(),qStock.getQuantity());
-            for (FlowerFormulaDetail q: flowerList) {
-                List<FlowerFormulaDetail> formulas = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(q.getFlowerFormula().getId());
-                int unit = qStock.getQuantity() / q.getQuantity();
-                //System.out.println("จำนวนที่สามารถทำได้ : " + unit);
-                if (unit > 0) {
-                    if(unit > 5){
-                        unit = 5;
+        List<Florist> florist = this.floristRepository.findAll();
+        for (Florist flo: florist) {
+            System.out.println("------------------------------");
+            System.out.println("florist : " + flo.getName());
+            List<Stock> stocks = this.stockRepository.findAllByFloristIdOrderByQuantityDesc(flo.getId());
+            List<Stock> newStocks = new ArrayList<>();
+            List<Integer> newFlower = new ArrayList<>();
+            outer:
+            for (Stock stock : stocks) {
+                String rr = stock.getLot().toString();
+                Date d2 = this.dateFormat.parse(rr);
+                long chkExp = date.getTime() - d2.getTime();
+                int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
+                //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
+                List<Flower> flowers = this.flowerRepository.findAllById(stock.getFlower().getFlowerId());
+                for (Flower flower : flowers) {
+                    flowerLifeTime = flower.getLifeTime();
+                    typeFlower = flower.getFlowerType();
+                }
+
+                int expired = flowerLifeTime - diffDays;
+                List<PromotionProfit> promotionProfits = this.promotionProfitRepository.findAllByAgeAndFlowerType(expired, typeFlower);
+                for (PromotionProfit profit : promotionProfits) {
+                    if (profit != null) {
+                        profitFlower = profit.getProfit();
+                    } else {
+                        break;
                     }
-                    flower.add(q);
-//                    System.out.println("FlowerFormula Name : " + q.getFlowerFormula().getName());
                 }
 
-                calProfit = (int) ((q.getFlowerFormula().getPrice()) - (int) ((q.getFlowerFormula().getPrice() * profitFlower)/ 100));
-                PromotionDetailDto promotionDetailDto = new PromotionDetailDto();
-                promotionDetailDto.setId(q.getFlowerFormula().getId());
-                promotionDetailDto.setFormulaName(q.getFlowerFormula().getName());
-                promotionDetailDto.setSize(q.getFlowerFormula().getSize());
-                promotionDetailDto.setQuantity(unit);
-                promotionDetailDto.setProfit(calProfit);
-                promotionDetailDto.setTotalProfit((calProfit * unit));
-                promotionDetailDto.setPrice(calProfit);
-                promotionDetailDto.setLocationName(qStock.getFlorist().getName());
-                promotionDetailDto.setImage(q.getFlowerFormula().getImagePath());
-                promotionDetailDtos.add(promotionDetailDto);
+                if (expired > 0 && expired <= 3) {
+                    newStocks.add(stock);
+                    newFlower.add(stock.getFlower().getFlowerId());
+                } else {
+                    continue outer;
+                }
+            }
 
-//                System.out.println("--");
-//                System.out.println("Flower FormulaId ID : " + q.getFlowerFormula().getId());
-//                System.out.println("Name : " + q.getFlowerFormula().getName());
-//                System.out.println("Size : " + q.getFlowerFormula().getSize());
-//                System.out.println("Quantity : " + unit);
-//                System.out.println("Profit : " + q.getFlowerFormula().getPrice());
-//                System.out.println("Total Profit : " + (q.getFlowerFormula().getPrice() * unit));
-//                System.out.println("Price : " + q.getFlowerFormula().getPrice());
-//                System.out.println("Location : " + qStock.getFlorist().getName());
-//                System.out.println("imagePath : " + q.getFlowerFormula().getImagePath());
-//                System.out.println("======================================");
+            List<FlowerFormulaDetail> formulaDup = new ArrayList<>();
+            for (Stock qStock : newStocks) {
+                String chk1 = "Y";
+                String chk2 = "Y";
+                int unit = 0;
+                //int unit2 = 0;
+                int remain = 0;
+                int loop = 0;
+                List<StockDto> stockChk = new ArrayList<>();
+                StockDto stockRecalculate = new StockDto();
+                //List flower formula detail
+                List<FlowerFormulaDetail> flowerList = this.flowerFormulaDetailRepository.findAllByFlowerIdAndQuantityLessThanEqualOrderByQuantityDesc(qStock.getFlower().getFlowerId(), qStock.getQuantity());
+                loop = 1;
+                recalDup:
+                for (FlowerFormulaDetail q : flowerList) {
+                    List<FlowerFormulaDetail> formulas = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(q.getFlowerFormula().getId());
+                    System.out.println("formula id : " + q.getFlowerFormula().getId() + "formula name : " + q.getFlowerFormula().getName());
+                    //Check Duplicate
+                    for (Promotion d : listPromotion) {
+                        List<PromotionDetail> chkDupPromotion = this.promotionDetailRepository.findAllByPromotionId(d.getId());
+                        for (PromotionDetail dd : chkDupPromotion) {
+                            if (q.getFlowerFormula().getId().equals(dd.getFlowerFormula().getId())) {
+                                //System.out.println("getName : " + dd.getFlowerFormula().getName());
+                                continue recalDup;
+                            }
+                        }
+                    }
 
+                    //Check Duplicate in day
+                    for (FlowerFormulaDetail formulasChk : formulaDup) {
+                            if (q.getFlowerFormula().getId().equals(formulasChk.getFlowerFormula().getId())) {
+                                continue recalDup;
+                        }
+                    }
+
+//                System.out.println("formula id : " + q.getFlowerFormula().getId());
+//                System.out.println("formula name : " + q.getFlowerFormula().getName());
+//                System.out.println("flower size : " + q.getFlowerFormula().getSize());
+                    for (FlowerFormulaDetail f : formulas) {
+                        List<Stock> stockCheck = this.stockRepository.findAllByFlowerIdAndFloristIdAndQuantityGreaterThanEqualAndLotGreaterThanEqual(f.getFlower().getFlowerId(), flo.getId(), f.getQuantity(), dateReverse);
+                        chk1 = "Y";
+                        chk2 = "Y";
+
+                        if (stockCheck.size() == 0) {
+                            chk1 = "N";
+                            break;
+                        } else {
+                            for (Stock ss : stockCheck) {
+                                chk2 = "Y";
+                                if (ss.getFlower().getMainCategory().equals("หลัก")) {
+                                    if (loop == 1) {
+                                        unit = ss.getQuantity() / f.getQuantity();
+                                        remain = ss.getQuantity() - (f.getQuantity() * unit);
+                                        stockRecalculate.setId(ss.getFlower().getFlowerId());
+                                        stockRecalculate.setFlowerName(ss.getFlower().getFlowerName());
+                                        stockRecalculate.setRemainQuantity(remain);
+                                        stockChk.add(stockRecalculate);
+
+                                    } else {
+                                        for (StockDto aa : stockChk) {
+                                            if (ss.getFlower().getFlowerId().equals(aa.getId())) {
+                                                unit = aa.getRemainQuantity() / f.getQuantity();
+                                                remain = aa.getRemainQuantity() - (f.getQuantity() * unit);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    if (loop == 1) {
+                                        remain = ss.getQuantity() - (f.getQuantity() * unit);
+                                    } else {
+                                        for (StockDto aa : stockChk) {
+                                            if (ss.getFlower().getFlowerId().equals(aa.getId())) {
+                                                remain = aa.getRemainQuantity() - (f.getQuantity() * unit);
+
+                                            }
+                                        }
+                                    }
+                                    System.out.println("FlowerName : " + ss.getFlower().getFlowerName() + ", ดอกไม้คงเหลือ remain : " + remain);
+                                }
+                            }
+                        }
+                    }
+
+                    /*StockDto flowerRemain = new StockDto();
+                    flowerRemain.setId();
+                    flowerRemain.getRemainQuantity();
+                    flowerRemain.getFlowerName();*/
+
+                    loop = loop + 1;
+                    if (chk1.equals("Y") && chk2.equals("Y")) {
+                        System.out.println("Pass formula name : " + q.getFlowerFormula().getName());
+                        calProfit = (int) ((q.getFlowerFormula().getPrice()) - (int) ((q.getFlowerFormula().getPrice() * profitFlower) / 100));
+                        PromotionDetailDto promotionDetailDto = new PromotionDetailDto();
+                        promotionDetailDto.setId(q.getFlowerFormula().getId());
+                        promotionDetailDto.setFormulaName(q.getFlowerFormula().getName());
+                        promotionDetailDto.setSize(q.getFlowerFormula().getSize());
+                        promotionDetailDto.setQuantity(unit);
+                        promotionDetailDto.setProfit(calProfit);
+                        promotionDetailDto.setTotalProfit((calProfit * unit));
+                        promotionDetailDto.setPrice(calProfit);
+                        promotionDetailDto.setLocationName(qStock.getFlorist().getName());
+                        promotionDetailDto.setImage(q.getFlowerFormula().getImagePath());
+                        promotionDetailDtos.add(promotionDetailDto);
+
+                        formulaDup.add(q);
+
+                    } else {
+                        System.out.println("Not Pass flower name : " + q.getFlowerFormula().getName());
+                    }
+                    System.out.println("-------------------------");
+
+                }
             }
         }
-
-        return promotionDetailDtos;
+        List<PromotionDetailDto> sortedList = promotionDetailDtos.stream()
+                .sorted(Comparator.comparingInt(PromotionDetailDto::getTotalProfit).reversed())
+                .collect(Collectors.toList());
+        //getPromotionSuggest(sortedList);
+        return sortedList;
     }
 
     @GetMapping(value="/getPromotionSuggest")
+    //public List<PromotionDetailCurrentDto> getPromotionSuggest(List<PromotionDetailDto> sortedList) throws ParseException {
     public List<PromotionDetailCurrentDto> getPromotionSuggest() throws ParseException {
         String dateInStrs = this.dateFormat.format(new Date());
         Date date = this.dateFormat.parse(dateInStrs);
@@ -222,7 +327,7 @@ public class PromotionDetailController {
                             ss = cc.getQuantity();
                         }
 
-                        String quantityDto = f.getFlower().getFlowerName() + f.getQuantity() + f.getFlower().getUnit();
+                        String quantityDto = f.getFlower().getFlowerName() + (f.getQuantity() * unit) + f.getFlower().getUnit();
                         String stockDto = ss + f.getFlower().getUnit();
                         promotionDetailCurrentDto.setQuantity(unit);
                         promotionDetailCurrentDto.setQuantityFlower(quantityDto);

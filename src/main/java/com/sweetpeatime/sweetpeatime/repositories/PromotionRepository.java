@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
     List<Promotion> findAllByDate(Date date);
+
+    List<Promotion> findAllByDateGreaterThanAndDateLessThanEqual(Date dateFrom, Date dateTo);
 }
