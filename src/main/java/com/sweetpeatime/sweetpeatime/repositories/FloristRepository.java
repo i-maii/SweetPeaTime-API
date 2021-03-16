@@ -11,4 +11,6 @@ public interface FloristRepository extends JpaRepository<Florist, Integer> {
     Florist findFloristById(Integer id);
 
     List<Florist> findAll();
+
+    Florist findFloristByName(String name);
 }

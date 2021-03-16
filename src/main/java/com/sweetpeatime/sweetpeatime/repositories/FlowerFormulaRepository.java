@@ -14,4 +14,6 @@ public interface FlowerFormulaRepository extends JpaRepository<FlowerFormula, In
     List<FlowerFormula> findAllByFlowerFormulaId();
 
     List<FlowerFormula> findAllById(Integer id);
+
+    FlowerFormula findFlowerFormulaByName(String name);
 }

@@ -40,7 +40,7 @@ public class StockController {
     @PersistenceContext
     EntityManager entityManager;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @GetMapping("")
     public List<Stock> getAllStock() {
@@ -102,7 +102,7 @@ public class StockController {
             Stock stock = new Stock();
             stock.setFlower(s.getFlower());
             stock.setQuantity(s.getQuantity());
-            stock.setLot(this.dateFormat.parse(s.getLot()));
+            stock.setLot(dateFormat.parse(s.getLot()));
             stock.setUnit(s.getFlower().getUnit());
             stock.setFlorist(s.getFlorist());
             stock.setFlowerPrice(flowerPrice);

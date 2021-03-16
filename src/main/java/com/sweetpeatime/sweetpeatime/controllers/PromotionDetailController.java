@@ -27,6 +27,9 @@ public class PromotionDetailController {
     FlowerFormulaDetailRepository flowerFormulaDetailRepository;
 
     @Autowired
+    FlowerFormulaRepository flowerFormulaRepository;
+
+    @Autowired
     StockRepository stockRepository;
 
     @Autowired
@@ -58,7 +61,7 @@ public class PromotionDetailController {
         this.promotionDetailRepository.saveAndFlush(updateStatusPromotion);
     }
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public PromotionDetailController(PromotionDetailRepository promotionDetailRepository) {
         this.promotionDetailRepository = promotionDetailRepository;
@@ -66,8 +69,8 @@ public class PromotionDetailController {
 
     @GetMapping(value="/getPromotion")
     public List<PromotionDetailDto> getPromotion() throws ParseException {
-        String dateInStr = this.dateFormat.format(new Date());
-        Date date = this.dateFormat.parse(dateInStr);
+        String dateInStr = dateFormat.format(new Date());
+        Date date = dateFormat.parse(dateInStr);
         List<PromotionDetailDto> promotionDetailDtos = new ArrayList<>();
         List<StockDto> flowerRemains = new ArrayList<>();
         int flowerLifeTime = 0;
@@ -78,12 +81,12 @@ public class PromotionDetailController {
 
         LocalDate currentDate = LocalDate.now();
         LocalDate dateTime = currentDate.minus(7, ChronoUnit.DAYS);
-        Date dateReverse = this.dateFormat.parse(String.valueOf(dateTime));
+        Date dateReverse = dateFormat.parse(String.valueOf(dateTime));
 
         LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
         LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
-        Date dateFrom = this.dateFormat.parse(String.valueOf(dateTime1));
-        Date dateTo = this.dateFormat.parse(String.valueOf(dateTime2));
+        Date dateFrom = dateFormat.parse(String.valueOf(dateTime1));
+        Date dateTo = dateFormat.parse(String.valueOf(dateTime2));
 
         System.out.println("dateReverse : " + dateReverse);
         System.out.println("dateFrom : " + dateFrom);
@@ -106,7 +109,7 @@ public class PromotionDetailController {
             outer:
             for (Stock stock : stocks) {
                 String rr = stock.getLot().toString();
-                Date d2 = this.dateFormat.parse(rr);
+                Date d2 = dateFormat.parse(rr);
                 long chkExp = date.getTime() - d2.getTime();
                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -258,8 +261,8 @@ public class PromotionDetailController {
     @GetMapping(value="/getPromotionSuggest")
     //public List<PromotionDetailCurrentDto> getPromotionSuggest(List<PromotionDetailDto> sortedList) throws ParseException {
     public List<PromotionDetailCurrentDto> getPromotionSuggest() throws ParseException {
-        String dateInStrs = this.dateFormat.format(new Date());
-        Date date = this.dateFormat.parse(dateInStrs);
+        String dateInStrs = dateFormat.format(new Date());
+        Date date = dateFormat.parse(dateInStrs);
         List<PromotionDetailCurrentDto> promotionDetailCurrentDtos = new ArrayList<>();
         int flowerLifeTime = 0;
         int profitFlower = 0;
@@ -274,7 +277,7 @@ public class PromotionDetailController {
         outer:
         for(Stock stock: stocks){
             String rr = stock.getLot().toString();
-            Date d2 = this.dateFormat.parse(rr);
+            Date d2 = dateFormat.parse(rr);
             long chkExp = date.getTime()  - d2.getTime();
             int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
             List<Flower> flowers = this.flowerRepository.findAllById(stock.getFlower().getFlowerId());
@@ -353,4 +356,44 @@ public class PromotionDetailController {
         return promotionDetailCurrentDtos;
     }
 
+    @PostMapping("/addPromotion")
+    public void addPromotionDetail(
+            @RequestBody AddPromotionDto addPromotionDto
+    ) {
+        List<PromotionDetail> lastActivePromotions = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
+
+        Promotion promotion = new Promotion();
+        promotion.setDate(new Date());
+        this.promotionRepository.saveAndFlush(promotion);
+
+        for (PromotionDetail s : lastActivePromotions) {
+            PromotionDetail promotionDetail = new PromotionDetail();
+            promotionDetail.setProfit(s.getProfit());
+            promotionDetail.setPrice(s.getPrice());
+            promotionDetail.setQuantity(s.getQuantity());
+            promotionDetail.setQuantitySold(s.getQuantitySold());
+            promotionDetail.setStatus(s.getStatus());
+            promotionDetail.setPromotion(promotion);
+            promotionDetail.setFlowerFormula(s.getFlowerFormula());
+            promotionDetail.setExpiryDate(s.getExpiryDate());
+            promotionDetail.setFlorist(s.getFlorist());
+            promotionDetail.setType(s.getType());
+            this.promotionDetailRepository.saveAndFlush(promotionDetail);
+
+            s.setStatus("inactive");
+            this.promotionDetailRepository.saveAndFlush(s);
+        }
+
+        PromotionDetail newPromotionDetail = new PromotionDetail();
+        newPromotionDetail.setProfit(addPromotionDto.getProfit());
+        newPromotionDetail.setPrice(addPromotionDto.getPrice());
+        newPromotionDetail.setQuantity(addPromotionDto.getQuantity());
+        newPromotionDetail.setStatus("active");
+        newPromotionDetail.setPromotion(promotion);
+        newPromotionDetail.setFlowerFormula(this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName()));
+        newPromotionDetail.setFlorist(this.floristRepository.findFloristByName(addPromotionDto.getLocationName()));
+        this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
+
+        System.out.println(lastActivePromotions);
+    }
 }
