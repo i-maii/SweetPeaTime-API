@@ -47,6 +47,8 @@ public class PromotionDetailController {
     @Autowired
     FloristRepository floristRepository;
 
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     //@GetMapping(value = "/currentPromotion")
     @GetMapping(value = "/currentPromotion")
     public List<PromotionDetail> getCurrentPromotion() {
@@ -60,8 +62,6 @@ public class PromotionDetailController {
         updateStatusPromotion.setStatus("inactive");
         this.promotionDetailRepository.saveAndFlush(updateStatusPromotion);
     }
-
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public PromotionDetailController(PromotionDetailRepository promotionDetailRepository) {
         this.promotionDetailRepository = promotionDetailRepository;
@@ -360,28 +360,32 @@ public class PromotionDetailController {
     public void addPromotionDetail(
             @RequestBody AddPromotionDto addPromotionDto
     ) {
-        List<PromotionDetail> lastActivePromotions = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
+        Promotion promotion = this.promotionRepository.findFirstByOrderByDateDesc();
 
-        Promotion promotion = new Promotion();
-        promotion.setDate(new Date());
-        this.promotionRepository.saveAndFlush(promotion);
+        if (!dateFormat.format(promotion.getDate()).equals(dateFormat.format(new Date()))) {
+            List<PromotionDetail> lastActivePromotions = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
 
-        for (PromotionDetail s : lastActivePromotions) {
-            PromotionDetail promotionDetail = new PromotionDetail();
-            promotionDetail.setProfit(s.getProfit());
-            promotionDetail.setPrice(s.getPrice());
-            promotionDetail.setQuantity(s.getQuantity());
-            promotionDetail.setQuantitySold(s.getQuantitySold());
-            promotionDetail.setStatus(s.getStatus());
-            promotionDetail.setPromotion(promotion);
-            promotionDetail.setFlowerFormula(s.getFlowerFormula());
-            promotionDetail.setExpiryDate(s.getExpiryDate());
-            promotionDetail.setFlorist(s.getFlorist());
-            promotionDetail.setType(s.getType());
-            this.promotionDetailRepository.saveAndFlush(promotionDetail);
+            promotion = new Promotion();
+            promotion.setDate(new Date());
+            this.promotionRepository.saveAndFlush(promotion);
 
-            s.setStatus("inactive");
-            this.promotionDetailRepository.saveAndFlush(s);
+            for (PromotionDetail s : lastActivePromotions) {
+                PromotionDetail promotionDetail = new PromotionDetail();
+                promotionDetail.setProfit(s.getProfit());
+                promotionDetail.setPrice(s.getPrice());
+                promotionDetail.setQuantity(s.getQuantity());
+                promotionDetail.setQuantitySold(s.getQuantitySold());
+                promotionDetail.setStatus(s.getStatus());
+                promotionDetail.setPromotion(promotion);
+                promotionDetail.setFlowerFormula(s.getFlowerFormula());
+                promotionDetail.setExpiryDate(s.getExpiryDate());
+                promotionDetail.setFlorist(s.getFlorist());
+                promotionDetail.setType(s.getType());
+                this.promotionDetailRepository.saveAndFlush(promotionDetail);
+
+                s.setStatus("inactive");
+                this.promotionDetailRepository.saveAndFlush(s);
+            }
         }
 
         PromotionDetail newPromotionDetail = new PromotionDetail();
@@ -393,7 +397,5 @@ public class PromotionDetailController {
         newPromotionDetail.setFlowerFormula(this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName()));
         newPromotionDetail.setFlorist(this.floristRepository.findFloristByName(addPromotionDto.getLocationName()));
         this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
-
-        System.out.println(lastActivePromotions);
     }
 }
