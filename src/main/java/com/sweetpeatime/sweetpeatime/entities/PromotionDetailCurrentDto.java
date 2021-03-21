@@ -11,7 +11,7 @@ public class PromotionDetailCurrentDto {
     private String locationName;
     private String image;
     private String quantityFlower;
-    private String stock;
+    private Integer stock;
 
     public Integer getId() {
         return id;
@@ -89,11 +89,11 @@ public class PromotionDetailCurrentDto {
         this.quantityFlower = quantityFlower;
     }
 
-    public String getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(String stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 

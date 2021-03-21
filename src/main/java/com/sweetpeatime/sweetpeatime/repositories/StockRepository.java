@@ -22,7 +22,7 @@ public interface StockRepository extends JpaRepository<Stock, Integer>{
     List<Stock> findAllByFloristIdOrderByQuantityDesc(Integer floristId);
 
     //List<Stock> findAllByFlowerIdAndFloristIdAndQuantity(Integer flowerId, Integer floristId, Integer quantity);
-    //List<Stock> findAllByFlowerIdAndFloristIdAndQuantityGreaterThanEqual(Integer flowerId, Integer floristId, Integer quantity);
+    List<Stock> findAllByFlowerIdAndLotGreaterThanEqualAndLotLessThanEqualAndFloristId(Integer flowerId,Date dateFrom, Date dateTo, Integer floristId);
     List<Stock> findAllByFlowerIdAndFloristIdAndQuantityGreaterThanEqualAndLotGreaterThanEqual(Integer flowerId, Integer floristId, Integer quantity, Date lot);
 
 }
