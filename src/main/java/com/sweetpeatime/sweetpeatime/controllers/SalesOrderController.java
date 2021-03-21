@@ -190,7 +190,7 @@ public class SalesOrderController {
         String dateInStr = this.simpleDateFormat.format(new Date());
         Date date = this.simpleDateFormat.parse(dateInStr);
 
-//        SalesOrder oldSalesOrder = this.salesOrderRepository.findAllById(updateSalesOrder.getId());
+        SalesOrder oldSalesOrder = this.salesOrderRepository.findAllById(updateSalesOrder.getId());
 
         SalesOrder salesOrder = new SalesOrder();
         salesOrder.setId(updateSalesOrder.getId());
@@ -206,32 +206,15 @@ public class SalesOrderController {
         salesOrder.setReceiverAddress(updateSalesOrder.getReceiverAddress());
         salesOrder.setReceiverPhone(updateSalesOrder.getReceiverPhone());
         salesOrder.setReceiverDateTime(updateSalesOrder.getReceiveDateTime());
-        salesOrder.setStatus(updateSalesOrder.getStatus());
         salesOrder.setTotalPrice(updateSalesOrder.getTotalPrice());
 
+        if (updateSalesOrder.getStatus().equals("ยกเลิกออเดอร์") && !oldSalesOrder.getStatus().equals("ยกเลิกออเดอร์")) {
+            cancelSalesOrder(updateSalesOrder.getId());
+            salesOrder.setStatus(updateSalesOrder.getStatus());
+        } else {
+            salesOrder.setStatus(updateSalesOrder.getStatus());
+        }
         this.salesOrderRepository.saveAndFlush(salesOrder);
-        List<SalesOrderDetail> salesOrderDetail = this.salesOrderDetailRepository.findAllBySalesOrderId(updateSalesOrder.getId());
-//        Florist florist = this.floristRepository.findFloristById(updateSalesOrder.getFlorist());
-
-//        if(updateSalesOrder.getStatus().equals("ยกเลิกออเดอร์")){
-//            cancelSalesOrder(salesOrderDetail);
-//        }
-//        else{
-//            List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(updateSalesOrder.getFlowerFormula());
-//
-//            for (FlowerFormulaDetail f: flowerFormulaDetail) {
-//                Stock stock = this.stockRepository.findStockByFlowerIdAndFloristId(f.getFlower().getFlowerId(), updateSalesOrder.getFlorist());
-//                Integer quantity = stock.getQuantity() - (f.getQuantity() * updateSalesOrder.getFlowerAvailable());
-//                stock.setQuantity(quantity);
-//                this.stockRepository.saveAndFlush(stock);
-//            }
-//        }
-
-//        salesOrderDetail.setFlorist(florist);
-//        salesOrderDetail.setQuantity(updateSalesOrder.getFlowerAvailable());
-//        FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(updateSalesOrder.getFlowerFormula());
-//        salesOrderDetail.setFlowerFormula(flowerFormula);
-//        this.salesOrderDetailRepository.saveAndFlush(salesOrderDetail);
     }
 
     @PostMapping(value = "/cancelSalesOrder")
@@ -254,10 +237,14 @@ public class SalesOrderController {
                 promotion.setDate(date);
 
                 Promotion promotionCreated = this.promotionRepository.saveAndFlush(promotion);
-
+                int oldPrice = salesOrderDetail.getFlowerFormula().getPrice();
+                int profitDis = promotionProfit.getProfit();
+                double profit = profitDis / 100.0;
+                double newProfit = oldPrice * profit;
+                int newPromotionPrice = (int) (oldPrice - newProfit);
                 PromotionDetail newPromotionDetail = new PromotionDetail();
                 newPromotionDetail.setProfit(salesOrderDetail.getSalesOrder().getTotalPrice());
-                newPromotionDetail.setPrice(salesOrderDetail.getFlowerFormula().getPrice() - (salesOrderDetail.getFlowerFormula().getPrice() * (promotionProfit.getProfit() / 100)));
+                newPromotionDetail.setPrice(newPromotionPrice);
                 newPromotionDetail.setQuantity(salesOrderDetail.getQuantity());
                 newPromotionDetail.setQuantitySold(0);
                 newPromotionDetail.setStatus("active");
@@ -265,9 +252,9 @@ public class SalesOrderController {
                 newPromotionDetail.setFlowerFormula(salesOrderDetail.getFlowerFormula());
                 newPromotionDetail.setExpiryDate(c.getTime());
                 newPromotionDetail.setType("ยกเลิกช่อ");
+                newPromotionDetail.setFlorist(salesOrderDetail.getFlorist());
 
                 this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
-//            }
             } else {
                 for (FlowerFormulaDetail f: flowerFormulaDetail) {
                     Stock stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotDesc(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
