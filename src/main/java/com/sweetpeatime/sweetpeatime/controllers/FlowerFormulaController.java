@@ -192,7 +192,7 @@ public class FlowerFormulaController {
         return priceOfSalesOrder;
     }
 
-    @PostMapping(value="/search")
+    @GetMapping(value="/search")
     public List<FlowerFormula> search(
             @RequestParam(value = "flowerCat", required = false) String flowerCat,
             @RequestParam(value = "name", required = false) String name,
