@@ -37,28 +37,31 @@ public class CalculationController {
     }
 
     @GetMapping(value="/calculateDeliveryFee")
-    public int calculateDeliveryFee(String area) {
+    public int calculateDeliveryFee(@RequestParam("distance") Integer distance) {
         Integer deliveryFee = 0;
         Integer deliveryRate;
-        Integer distance = 12;
+      //  Integer distance = 12;
         if (distance <= 10) {
-            deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_10").getValue();
+            deliveryRate = 100;
+            //deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_10").getValue();
         }
-        else if (distance <= 20)
+        else if (distance >= 10 && distance <= 20)
         {
-            deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_20").getValue();
+            deliveryRate = 150;
+           // deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_20").getValue();
 
         }
-        else if (distance <= 30)
+        else if (distance >= 20 && distance <= 30)
         {
-            deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_30").getValue();
+            deliveryRate = 300;
+           // deliveryRate = this.configurationsRepository.getValueByName("MESSENGER_30").getValue();
 
         }
         else
         {
             deliveryRate = 501;
         }
-        return 300;
+        return deliveryRate;
     }
 }
 

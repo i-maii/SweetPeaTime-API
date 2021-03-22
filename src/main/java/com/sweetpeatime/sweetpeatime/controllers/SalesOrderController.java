@@ -54,7 +54,9 @@ public class SalesOrderController {
     }
 
     @GetMapping(value="/getSalesOrderDetailListDto")
-    public List<SalesOrderDetailListDto> getSalesOrderListDto() {
+    public List<SalesOrderDetailListDto> getSalesOrderListDto(@RequestParam("startDate") Date startDate,@RequestParam("endDate") Date endDate)
+    {
+
         List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
 
         List<SalesOrder> salesOrders = this.salesOrderRepository.findAll();
@@ -82,6 +84,37 @@ public class SalesOrderController {
         }
         return salesOrderDetailListDtos;
     }
+
+    @GetMapping(value="/searchSalesOrderDetailListDto")
+    public List<SalesOrderDetailListDto> searchSalesOrderListDto() {
+       List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
+
+        List<SalesOrder> salesOrders = this.salesOrderRepository.findAll();
+
+        for (SalesOrder salesOrder : salesOrders) {
+            SalesOrderDetailListDto salesOrderDetailListDto = new SalesOrderDetailListDto();
+            salesOrderDetailListDto.setId(salesOrder.getId());
+            salesOrderDetailListDto.setCustomerName(salesOrder.getCustomerName());
+            salesOrderDetailListDto.setCustomerPhone(salesOrder.getCustomerPhone());
+            salesOrderDetailListDto.setCustomerLineFb(salesOrder.getCustomerLineFb());
+            salesOrderDetailListDto.setDate(salesOrder.getDate());
+            salesOrderDetailListDto.setReceiverName(salesOrder.getReceiverName());
+            salesOrderDetailListDto.setReceiverPhone(salesOrder.getReceiverPhone());
+            salesOrderDetailListDto.setReceiverAddress(salesOrder.getReceiverAddress());
+            salesOrderDetailListDto.setReceiveDateTime(salesOrder.getReceiverDateTime());
+            salesOrderDetailListDto.setFlowerPrice(salesOrder.getPrice());
+            salesOrderDetailListDto.setDeliveryFee(salesOrder.getDeliveryPrice());
+            salesOrderDetailListDto.setTotalPrice(salesOrder.getTotalPrice());
+            salesOrderDetailListDto.setNote(salesOrder.getNote());
+            salesOrderDetailListDto.setStatus(salesOrder.getStatus());
+
+            List<SalesOrderDetail> salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrder.getId());
+            salesOrderDetailListDto.setSalesOrderDetails(salesOrderDetails);
+            salesOrderDetailListDtos.add(salesOrderDetailListDto);
+        }
+        return salesOrderDetailListDtos;
+    }
+
 
     @PostMapping(value = "/createSalesOrder")
     public void createSalesOrder(@RequestBody SalesOrderListDto createSalesOrder) throws ParseException {
