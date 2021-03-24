@@ -50,7 +50,7 @@ public class SalesOrderController {
     }
 
     @GetMapping(value="/getSalesOrderDetailListDto")
-    public List<SalesOrderDetailListDto> getSalesOrderListDto(@RequestParam("startDate") Date startDate,@RequestParam("endDate") Date endDate)
+    public List<SalesOrderDetailListDto> getSalesOrderListDto()
     {
 
         List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
@@ -82,7 +82,8 @@ public class SalesOrderController {
     }
 
     @GetMapping(value="/searchSalesOrderDetailListDto")
-    public List<SalesOrderDetailListDto> searchSalesOrderListDto() {
+    public List<SalesOrderDetailListDto> searchSalesOrderListDto(@RequestParam("startDate") Date startDate,@RequestParam("endDate") Date endDate)
+    {
        List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
 
         List<SalesOrder> salesOrders = this.salesOrderRepository.findAll();
