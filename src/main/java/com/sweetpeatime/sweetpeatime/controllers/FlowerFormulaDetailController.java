@@ -32,7 +32,7 @@ public class FlowerFormulaDetailController {
     @Autowired
     private PromotionDetailRepository promotionDetailRepository;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @GetMapping(value="/getAll")
     public List<FlowerFormulaDetail> getAll() {
@@ -60,7 +60,7 @@ public class FlowerFormulaDetailController {
     public Integer getFlowerFormularDetail(@RequestParam("formulaId") Integer formulaId, @RequestParam("floristId") Integer floristId, @RequestParam("orderDate") String orderDate) throws ParseException {
         List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findAllByFlowerFormulaIdAndFloristId(formulaId, floristId);
 
-        Date date = this.simpleDateFormat.parse(orderDate);
+        Date date = simpleDateFormat.parse(orderDate);
         int available = 0;
 
         for( PromotionDetail promotionDetail : promotionDetails) {
@@ -82,7 +82,7 @@ public class FlowerFormulaDetailController {
         int quantityAvailablePerFormula = 0;
 
         int stockQuantity = 0;
-        Date date = this.simpleDateFormat.parse(orderDate);
+        Date date = simpleDateFormat.parse(orderDate);
 
 
         Calendar lotDate = Calendar.getInstance();

@@ -54,7 +54,7 @@ public class SalesOrderController {
     }
 
     @GetMapping(value="/getSalesOrderDetailListDto")
-    public List<SalesOrderDetailListDto> getSalesOrderListDto(@RequestParam("startDate") Date startDate,@RequestParam("endDate") Date endDate)
+    public List<SalesOrderDetailListDto> getSalesOrderListDto(@RequestParam(value = "startDate", required = false) Date startDate,@RequestParam(value = "endDate", required = false) Date endDate)
     {
 
         List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();

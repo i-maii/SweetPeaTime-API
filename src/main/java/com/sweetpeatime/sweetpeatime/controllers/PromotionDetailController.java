@@ -46,7 +46,6 @@ public class PromotionDetailController {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    //@GetMapping(value = "/currentPromotion")
     @GetMapping(value = "/currentPromotion")
     public List<PromotionDetail> getCurrentPromotion() {
         return this.promotionDetailRepository.findPromotionDetailsByStatus("active");
@@ -66,8 +65,7 @@ public class PromotionDetailController {
 
     @GetMapping(value="/getPromotion")
     public List<PromotionDetail> getPromotion() throws ParseException {
-        String dateInStr = dateFormat.format(new Date());
-        Date date = dateFormat.parse(dateInStr);
+        Date date = new Date();
         List<PromotionDetailDto> promotionDetailDtos = new ArrayList<>();
         int flowerLifeTime = 0;
         int profitFlower = 0;
@@ -90,9 +88,10 @@ public class PromotionDetailController {
         LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
         LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
-        Date dateFrom = dateFormat.parse(String.valueOf(dateTime1));
-        Date dateTo = dateFormat.parse(String.valueOf(dateTime2));
+
         ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
+        Date dateTo = Date.from(dateTime2.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
         List<Promotion> listPromotion = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateFrom, dateTo);
 
@@ -113,9 +112,7 @@ public class PromotionDetailController {
             //List ดอกไม้ที่เหลืออยู่ในสต๊อกที่ใกล้หมดอายุ
             outer:
             for (Stock stock : stocks) {
-                String rr = stock.getLot().toString();
-                Date d2 = dateFormat.parse(rr);
-                long chkExp = date.getTime() - d2.getTime();
+                long chkExp = date.getTime() - stock.getLot().getTime();
                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -175,9 +172,7 @@ public class PromotionDetailController {
                                 chkSize = chkSize + 1;
                                 availableQuantity = pp.getQuantity() / ff.getQuantity();
 
-                                String lot = pp.getLot().toString();
-                                Date d2 = dateFormat.parse(lot);
-                                long chkExp = date.getTime() - d2.getTime();
+                                long chkExp = date.getTime() - pp.getLot().getTime();
                                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -352,8 +347,7 @@ public class PromotionDetailController {
     }
 
     public List<Stock> getPromotionStock() throws ParseException {
-        String dateInStr = dateFormat.format(new Date());
-        Date date = dateFormat.parse(dateInStr);
+        Date date = new Date();
         List<PromotionDetailDto> promotionDetailDtos = new ArrayList<>();
         int flowerLifeTime = 0;
         int profitFlower = 0;
@@ -368,17 +362,16 @@ public class PromotionDetailController {
         int availableTotal = 9999;
         String typeFlower = null;
 
+        ZoneId zoneId = ZoneId.systemDefault();
         LocalDate currentDate = LocalDate.now();
         LocalDate dateTime = currentDate.minus(7, ChronoUnit.DAYS);
-        Date dateReverse = dateFormat.parse(String.valueOf(dateTime));
 
         //For Check Duplicate
         LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
         LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
-        Date dateFrom = dateFormat.parse(String.valueOf(dateTime1));
-        Date dateTo = dateFormat.parse(String.valueOf(dateTime2));
-        ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
+        Date dateTo = Date.from(dateTime2.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
         List<Promotion> listPromotion = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateFrom, dateTo);
 
@@ -399,9 +392,7 @@ public class PromotionDetailController {
             //List ดอกไม้ที่เหลืออยู่ในสต๊อกที่ใกล้หมดอายุ
             outer:
             for (Stock stock : stocks) {
-                String rr = stock.getLot().toString();
-                Date d2 = dateFormat.parse(rr);
-                long chkExp = date.getTime() - d2.getTime();
+                long chkExp = date.getTime() - stock.getLot().getTime();
                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -461,9 +452,7 @@ public class PromotionDetailController {
                                 chkSize = chkSize + 1;
                                 availableQuantity = pp.getQuantity() / ff.getQuantity();
 
-                                String lot = pp.getLot().toString();
-                                Date d2 = dateFormat.parse(lot);
-                                long chkExp = date.getTime() - d2.getTime();
+                                long chkExp = date.getTime() - pp.getLot().getTime();
                                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -641,10 +630,11 @@ public class PromotionDetailController {
         List<Stock> stockList = getPromotionStock();
         System.out.println("++++++ getPromotionSuggest ++++++");
         String dateInStr = dateFormat.format(new Date());
-        Date date = dateFormat.parse(dateInStr);
+        Date date = new Date();
         LocalDate currentDate = LocalDate.now();
         LocalDate dateTime1 = currentDate.minus(4, ChronoUnit.DAYS);
-        Date dateFrom = dateFormat.parse(String.valueOf(dateTime1));
+        ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
         Date dateTo = dateFormat.parse(dateInStr);
         int chkSize = 0;
         int availableQuantity = 0;
@@ -710,9 +700,7 @@ public class PromotionDetailController {
 
                         floristId = stock1.getFlorist().getId();
                         floristName = stock1.getFlorist().getName();
-                        String lot = stock1.getLot().toString();
-                        Date d2 = dateFormat.parse(lot);
-                        long chkExp = date.getTime() - d2.getTime();
+                        long chkExp = date.getTime() - stock1.getLot().getTime();
                         int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                         //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -826,8 +814,7 @@ public class PromotionDetailController {
         System.out.println("-----------");
         //List<PromotionDetail> promotionDetails = new ArrayList<>();
 
-        String dateInStr = dateFormat.format(new Date());
-        Date date = dateFormat.parse(dateInStr);
+        Date date = new Date();
 
         int flowerLifeTime = 0;
         int profitFlower = 0;
@@ -850,9 +837,10 @@ public class PromotionDetailController {
         LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
         LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
-        Date dateFrom = dateFormat.parse(String.valueOf(dateTime1));
-        Date dateTo = dateFormat.parse(String.valueOf(dateTime2));
+
         ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
+        Date dateTo = Date.from(dateTime2.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
         List<Promotion> listPromotion = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateFrom, dateTo);
 
@@ -873,9 +861,7 @@ public class PromotionDetailController {
             //List ดอกไม้ที่เหลืออยู่ในสต๊อกที่ใกล้หมดอายุ
             outer:
             for (Stock stock : stocks) {
-                String rr = stock.getLot().toString();
-                Date d2 = dateFormat.parse(rr);
-                long chkExp = date.getTime() - d2.getTime();
+                long chkExp = date.getTime() - stock.getLot().getTime();
                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
@@ -946,9 +932,7 @@ public class PromotionDetailController {
                                 chkSize = chkSize + 1;
                                 //System.out.println("chkSize : " + chkSize + ", location name : " + pp.getFlorist().getName() + ", flowername : " + pp.getFlower().getFlowerName() + ", lot : " + pp.getLot());
                                 availableQuantity = pp.getQuantity() / ff.getQuantity();
-                                String lot = pp.getLot().toString();
-                                Date d2 = dateFormat.parse(lot);
-                                long chkExp = date.getTime() - d2.getTime();
+                                long chkExp = date.getTime() - pp.getLot().getTime();
                                 int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
                                 //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
