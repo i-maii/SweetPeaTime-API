@@ -19,4 +19,11 @@ public class FloristController {
     public List<Florist> getAllFlorist() {
         return this.floristRepository.findAll();
     }
+
+    @GetMapping(value="/getById")
+    public Florist getFloristById(
+            @RequestParam("id") Integer id
+    ) {
+        return this.floristRepository.findFloristById(id);
+    }
 }

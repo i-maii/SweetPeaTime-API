@@ -113,18 +113,18 @@ public class FlowerFormulaController {
 
         }
 
-        double shippingFee = 0;
+//        double shippingFee = 0;
+//
+//        if (flowerPriceDtos.get(0).getFloristId() == 1) {
+//            shippingFee = 100;
+//        } else {
+//            shippingFee = 200;
+//        }
 
-        if (flowerPriceDtos.get(0).getFloristId() == 1) {
-            shippingFee = 100;
-        } else {
-            shippingFee = 200;
-        }
-
-        double totalPrice = flowerPrices + shippingFee;
+//        double totalPrice = flowerPrices + shippingFee;
         priceOfSalesOrder.setFlowerPrice((double) flowerPrices);
-        priceOfSalesOrder.setFeePrice(shippingFee);
-        priceOfSalesOrder.setTotalPrice(totalPrice);
+//        priceOfSalesOrder.setFeePrice(shippingFee);
+//        priceOfSalesOrder.setTotalPrice(totalPrice);
 
         return priceOfSalesOrder;
     }
