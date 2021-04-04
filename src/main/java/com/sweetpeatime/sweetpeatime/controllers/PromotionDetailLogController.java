@@ -35,4 +35,9 @@ public class PromotionDetailLogController {
 
         return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "current", "active");
     }
+
+    @GetMapping(value = "/suggest")
+    public List<PromotionDetailLog> getSuggestPromotion() {
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusOrderBySequenceAsc("active");
+    }
 }

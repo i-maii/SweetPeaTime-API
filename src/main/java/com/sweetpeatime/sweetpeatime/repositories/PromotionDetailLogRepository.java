@@ -9,4 +9,6 @@ import java.util.List;
 public interface PromotionDetailLogRepository extends JpaRepository<PromotionDetailLog, Integer> {
 
     List<PromotionDetailLog> findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(Date promotionDate, String promotionType, String status);
+
+    List<PromotionDetailLog> findPromotionDetailLogsByStatusOrderBySequenceAsc(String status);
 }
