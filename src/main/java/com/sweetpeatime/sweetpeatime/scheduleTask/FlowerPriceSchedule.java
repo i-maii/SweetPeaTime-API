@@ -75,9 +75,9 @@ public class FlowerPriceSchedule {
             }
             flowerFormulaPrice += (flowerFormulaPrice*percentProfit) / 100;
 
-            if (flowerFormulaPrice % 100 != 0) {
-                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
-            }
+//            if (flowerFormulaPrice % 100 != 0) {
+//                flowerFormulaPrice = (flowerFormulaPrice - (flowerFormulaPrice % 100)) + 90;
+//            }
             flowerFormula.setPrice(flowerFormulaPrice);
             this.flowerFormulaRepository.saveAndFlush(flowerFormula);
             flowerFormulaPrice = 0;

@@ -44,6 +44,9 @@ public class FlowerFormulaController {
     @Autowired
     PromotionProfitRepository promotionProfitRepository;
 
+    @Autowired
+    FloristFeeRepository floristFeeRepository;
+
     @PersistenceContext
     EntityManager entityManager;
 
@@ -72,6 +75,8 @@ public class FlowerFormulaController {
     public PriceOfSalesOrder getQuantityAvailable(@RequestBody List<FlowerPriceDto> flowerPriceDtos) throws ParseException {
         PriceOfSalesOrder priceOfSalesOrder = new PriceOfSalesOrder();
         Integer flowerPrices = 0;
+        int floristId = flowerPriceDtos.get(0).getFloristId();
+        FloristFee floristFee;
         for (FlowerPriceDto flowerPriceDto : flowerPriceDtos) {
             Date date = this.simpleDateFormat.parse(flowerPriceDto.getReceiveDate());
             List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(flowerPriceDto.getFormulaId(), date);
@@ -89,24 +94,42 @@ public class FlowerFormulaController {
 
                             if (newPromotionDetail.getQuantity() - 1 == 0) {
                                 flowerPrices += newPromotionDetail.getPrice();
+                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                                flowerPrices += floristFee.getFee();
+                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                                 promotionDetails.remove(newPromotionDetail);
                             } else {
                                 flowerPrices += newPromotionDetail.getPrice();
+                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                                flowerPrices += floristFee.getFee();
+                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                             }
 
                         } else if (promotionDetails.size() == 1) {
                             //find nearly date
                             for (PromotionDetail promotionDetail : promotionDetails) {
                                 flowerPrices += promotionDetail.getPrice();
+                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                                flowerPrices += floristFee.getFee();
+                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                             }
                         } else {
                             flowerPrices += flowerFormula.getPrice();
+                            floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                            flowerPrices += floristFee.getFee();
+                            flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                         }
                     } else {
                         flowerPrices += flowerFormula.getPrice();
+                        floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                        flowerPrices += floristFee.getFee();
+                        flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                     }
                 } else {
                     flowerPrices += flowerFormula.getPrice();
+                    floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+                    flowerPrices += floristFee.getFee();
+                    flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                 }
             }
 
