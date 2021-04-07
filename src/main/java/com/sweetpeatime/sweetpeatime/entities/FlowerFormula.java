@@ -18,6 +18,7 @@ public class FlowerFormula {
     private Integer quantityAvailable;
     private String color;
     private String formulaType;
+    /*private Integer availablePromotion;*/
 
     public FlowerFormula(){}
 
@@ -100,4 +101,12 @@ public class FlowerFormula {
     public void setColor(String color) {
         this.color = color;
     }
+
+    /*public Integer getAvailablePromotion() {
+        return availablePromotion;
+    }
+
+    public void setAvailablePromotion(Integer availablePromotion) {
+        this.availablePromotion = availablePromotion;
+    }*/
 }

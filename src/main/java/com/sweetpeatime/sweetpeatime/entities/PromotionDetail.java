@@ -21,6 +21,7 @@ public class PromotionDetail {
     private Date expiryDate;
     private Florist florist;
     private String type;
+    private Date lotStock;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -119,5 +120,13 @@ public class PromotionDetail {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Date getLotStock() {
+        return lotStock;
+    }
+
+    public void setLotStock(Date lotStock) {
+        this.lotStock = lotStock;
     }
 }

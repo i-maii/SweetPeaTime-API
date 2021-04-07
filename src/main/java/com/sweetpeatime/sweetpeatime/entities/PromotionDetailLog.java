@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -18,8 +19,13 @@ public class PromotionDetailLog {
     private Promotion promotion;
     private FlowerFormula flowerFormula;
     private Integer sequence;
+    private Date expiryDate;
     private String promotionType;
     private Florist florist;
+    private Date createDate;
+    private Date lotStock;
+    private Integer totalProfit;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -101,6 +107,14 @@ public class PromotionDetailLog {
         this.sequence = sequence;
     }
 
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
     public String getPromotionType() {
         return promotionType;
     }
@@ -118,4 +132,29 @@ public class PromotionDetailLog {
     public void setFlorist(Florist florist) {
         this.florist = florist;
     }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getLotStock() {
+        return lotStock;
+    }
+
+    public void setLotStock(Date lotStock) {
+        this.lotStock = lotStock;
+    }
+
+    public Integer getTotalProfit() {
+        return totalProfit;
+    }
+
+    public void setTotalProfit(Integer totalProfit) {
+        this.totalProfit = totalProfit;
+    }
+
 }
