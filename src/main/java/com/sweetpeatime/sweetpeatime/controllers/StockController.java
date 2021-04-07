@@ -4,6 +4,7 @@ import com.sweetpeatime.sweetpeatime.dto.AddStockDTO;
 import com.sweetpeatime.sweetpeatime.dto.DeleteStockDTO;
 import com.sweetpeatime.sweetpeatime.entities.FlowerPrice;
 import com.sweetpeatime.sweetpeatime.entities.Stock;
+import com.sweetpeatime.sweetpeatime.entities.StockLot;
 import com.sweetpeatime.sweetpeatime.repositories.FloristRepository;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerPriceRepository;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerRepository;
@@ -18,7 +19,10 @@ import javax.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
+
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -63,6 +67,115 @@ public class StockController {
 
             stock.add(s);
         }
+
+        return stock;
+    }
+
+    @GetMapping("/getStockByLot")
+    public List<Stock> getStockByLot(@RequestParam("startDate") String startD,@RequestParam("endDate") String endD) throws ParseException {
+        Date startDate = null;
+        Date endDate = null;
+        List<Stock> stock = new ArrayList<>();
+
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
+
+        if (startD != "") {
+            startDate = format.parse(startD);
+        }
+        if(endD != "") {
+            endDate = format.parse(endD);
+        }
+        StringBuilder selectQueryStr = new StringBuilder("SELECT * FROM Stock s WHERE 1 = 1 ");
+        if (startDate == null && endDate == null)
+        {
+            stock = this.stockRepository.findAll();
+        }
+        else {
+            if (startDate == null && endDate != null) {
+                selectQueryStr.append("AND s.lot <= :endDate ");
+
+            } else if (startDate != null && endDate == null) {
+                selectQueryStr.append("AND s.lot >= :startDate ");
+
+            } else if (startDate != null && endDate != null) {
+                selectQueryStr.append("AND s.lot BETWEEN :startDate AND :endDate  ");
+
+            }
+        }
+
+        Query selectQuery = entityManager.createNativeQuery(selectQueryStr.toString(), "stockMapping");
+        if (startDate != null)
+            selectQuery.setParameter("startDate", startDate);
+        if (endDate != null)
+            selectQuery.setParameter("endDate", endDate);
+
+        List<StockWrapper> stockList = selectQuery.getResultList();
+
+         stock = new ArrayList<>();
+        for (StockWrapper stockWrapper: stockList) {
+            Stock s = new Stock();
+            s.setFlower(this.flowerRepository.findOneById(stockWrapper.getFlowerId()));
+            s.setFlorist(this.floristRepository.findFloristById(stockWrapper.getFloristId()));
+            s.setQuantity(stockWrapper.getQuantity());
+            FlowerPrice flowerPrice = this.flowerPriceRepository.findByFlowerId(stockWrapper.getFlowerId());
+            s.setFlowerPrice(flowerPrice);
+            stock.add(s);
+        }
+        return stock;
+    }
+
+    @GetMapping("/getStockByDate")
+    public List<Stock> getStockByDate(@RequestParam("startDate") String startD,@RequestParam("endDate") String endD) throws ParseException {
+        Date startDate = null;
+        Date endDate = null;
+        List<Stock> stock = new ArrayList<>();
+       // List<StockLot> stockList = new ArrayList<>();
+
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
+
+        if (startD != "") {
+            startDate = format.parse(startD);
+        }
+        if(endD != "") {
+            endDate = format.parse(endD);
+        }
+        StringBuilder selectQueryStr = new StringBuilder("SELECT * FROM Stock s WHERE 1 = 1 ");
+        if (startDate == null && endDate == null)
+        {
+            stock = this.stockRepository.findAll();
+        }
+        else {
+            if (startDate == null && endDate != null) {
+                selectQueryStr.append("AND s.lot <= :endDate ");
+
+            } else if (startDate != null && endDate == null) {
+                selectQueryStr.append("AND s.lot >= :startDate ");
+
+            } else if (startDate != null && endDate != null) {
+                selectQueryStr.append("AND s.lot BETWEEN :startDate AND :endDate  ");
+
+            }
+        }
+
+        Query selectQuery = entityManager.createNativeQuery(selectQueryStr.toString(), "stockLotMapping");
+        if (startDate != null)
+            selectQuery.setParameter("startDate", startDate);
+        if (endDate != null)
+            selectQuery.setParameter("endDate", endDate);
+
+        List<StockLot> stockList  = selectQuery.getResultList();
+
+        stock = new ArrayList<>();
+        for (StockLot stockItem: stockList) {
+            Stock s = new Stock();
+            s.setFlower(this.flowerRepository.findOneById(stockItem.getFlowerId()));
+            s.setFlorist(this.floristRepository.findFloristById(stockItem.getFloristId()));
+            s.setQuantity(stockItem.getQuantity());
+            s.setUnit(stockItem.getUnit());
+            s.setLot(stockItem.getLot());
+            stock.add(s);
+        }
+
 
         return stock;
     }

@@ -211,7 +211,7 @@ public class FlowerFormulaController {
             //selectQueryStr.append("AND f.name like :name ");
             selectQueryStr.append("AND f.name like CONCAT('%', :name, '%') ");
         if(flowerCat != null)
-            selectQueryStr.append("AND f.category = :flowerCat ");
+            selectQueryStr.append("AND f.formulaType = :flowerCat ");
         if(florist != null)
         {
             if(pattern !=null) {

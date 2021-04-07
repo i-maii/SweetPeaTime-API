@@ -4,7 +4,8 @@ import com.sweetpeatime.sweetpeatime.entities.Florist;
 import com.sweetpeatime.sweetpeatime.entities.FloristFee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface FloristRepository extends JpaRepository<Florist, Integer> {
+public interface FloristFeeRepository extends JpaRepository<FloristFee, Integer> {
 
-    Florist findFloristById(Integer id);
+
+    FloristFee findFloristFeeByIdAndSize(Integer id, String size);
 }
