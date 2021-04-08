@@ -12,7 +12,7 @@ public class FloristFee {
     private Integer id;
     private Integer preparationTime;
     private String size;
-    private Double fee;
+    private Integer fee;
     private Florist florist;
 
     @Id
@@ -41,11 +41,11 @@ public class FloristFee {
         this.size = size;
     }
 
-    public Double getFee() {
+    public Integer getFee() {
         return fee;
     }
 
-    public void setFee(Double fee) {
+    public void setFee(Integer fee) {
         this.fee = fee;
     }
 
@@ -59,5 +59,4 @@ public class FloristFee {
     public void setFlorist(Florist florist) {
         this.florist = florist;
     }
-
 }
