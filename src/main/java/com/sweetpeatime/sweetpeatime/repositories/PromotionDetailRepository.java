@@ -15,7 +15,7 @@ public interface PromotionDetailRepository extends JpaRepository<PromotionDetail
             "WHERE pd.flowerFormulaId = ?1 " +
             "AND pd.status = 'active' " +
             "AND pd.expiryDate >= ?2", nativeQuery = true)
-    List<PromotionDetail> findOneByFlowerFormulaIdAndStatusAndExpiryDate(Integer flowerFormulaId, Date orderDate);
+    List<PromotionDetail> findOneByFlowerFormulaIdAndStatusAndExpiryDateAndFlorist(Integer flowerFormulaId, Date orderDate, Integer floristId);
 
     List<PromotionDetail> findAllByFlowerFormulaIdAndFloristId(Integer flowerFormulaId, Integer floristId);
 

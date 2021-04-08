@@ -79,7 +79,7 @@ public class FlowerFormulaController {
         FloristFee floristFee;
         for (FlowerPriceDto flowerPriceDto : flowerPriceDtos) {
             Date date = this.simpleDateFormat.parse(flowerPriceDto.getReceiveDate());
-            List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(flowerPriceDto.getFormulaId(), date);
+            List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDateAndFlorist(flowerPriceDto.getFormulaId(), date, floristId);
 
             FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaById(flowerPriceDto.getFormulaId());
 
@@ -94,24 +94,24 @@ public class FlowerFormulaController {
 
                             if (newPromotionDetail.getQuantity() - 1 == 0) {
                                 flowerPrices += newPromotionDetail.getPrice();
-                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                                flowerPrices += floristFee.getFee();
-                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
+//                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+//                                flowerPrices += floristFee.getFee();
+//                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                                 promotionDetails.remove(newPromotionDetail);
                             } else {
                                 flowerPrices += newPromotionDetail.getPrice();
-                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                                flowerPrices += floristFee.getFee();
-                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
+//                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+//                                flowerPrices += floristFee.getFee();
+//                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                             }
 
                         } else if (promotionDetails.size() == 1) {
                             //find nearly date
                             for (PromotionDetail promotionDetail : promotionDetails) {
                                 flowerPrices += promotionDetail.getPrice();
-                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                                flowerPrices += floristFee.getFee();
-                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
+//                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
+//                                flowerPrices += floristFee.getFee();
+//                                flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                             }
                         } else {
                             flowerPrices += flowerFormula.getPrice();
@@ -268,10 +268,10 @@ public class FlowerFormulaController {
     }
 
     @GetMapping(value = "/getflowerFormula")
-    public List<FlowerFormula> setFlowerFormula() {
+    public List<FlowerFormula> setFlowerFormula(@RequestParam("floristId") Integer floristId) {
         List<FlowerFormula> flowerFormulasPromotion = new ArrayList<>();
         List<FlowerFormula> flowerFormulas = new ArrayList<>();
-        flowerFormulasPromotion = this.flowerFormulaRepository.findAllByFlowerFormulaId();
+        flowerFormulasPromotion = this.flowerFormulaRepository.findAllByFlowerFormulaId(floristId);
         flowerFormulas = this.flowerFormulaRepository.findAll();
         for (FlowerFormula flowerFormula: flowerFormulasPromotion){
             flowerFormulas.remove(flowerFormula);

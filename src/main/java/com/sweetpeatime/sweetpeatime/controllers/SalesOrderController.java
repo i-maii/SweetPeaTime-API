@@ -46,6 +46,9 @@ public class SalesOrderController {
     @Autowired
     private PromotionProfitRepository promotionProfitRepository;
 
+    @Autowired
+    private FloristFeeRepository floristFeeRepository;
+
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @GetMapping(value="/getAll")
@@ -135,7 +138,6 @@ public class SalesOrderController {
         salesOrder.setReceiverAddress(createSalesOrder.getReceiverAddress());
         salesOrder.setReceiverPhone(createSalesOrder.getReceiverPhone());
         salesOrder.setReceiverDateTime(createSalesOrder.getReceiveDateTime());
-        salesOrder.setStatus("จ่ายแล้ว");
         salesOrder.setTotalPrice(createSalesOrder.getTotalPrice());
 
         //create salesorider
@@ -145,7 +147,7 @@ public class SalesOrderController {
         //decrease promotion detail
        for (FlowerMultipleDto flowerMultipleDto : createSalesOrder.getFlowerMultipleDtoList()){
            if (flowerMultipleDto.getFlowerAvailable() >= flowerMultipleDto.getOrderTotal()) {
-               List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDate(flowerMultipleDto.getFlowerFormula(), createSalesOrder.getReceiveDateTime());
+               List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDateAndFlorist(flowerMultipleDto.getFlowerFormula(), createSalesOrder.getReceiveDateTime(), createSalesOrder.getFlorist());
 
 
                for (int i = 1; i <= flowerMultipleDto.getOrderTotal(); i++){
@@ -275,6 +277,9 @@ public class SalesOrderController {
                 double profit = profitDis / 100.0;
                 double newProfit = oldPrice * profit;
                 int newPromotionPrice = (int) (oldPrice - newProfit);
+                FloristFee floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(salesOrderDetail.getFlorist().getId(), salesOrderDetail.getFlowerFormula().getSize());
+                newPromotionPrice += floristFee.getFee();
+                newPromotionPrice = (newPromotionPrice - (newPromotionPrice % 100)) + 90;
                 PromotionDetail newPromotionDetail = new PromotionDetail();
                 newPromotionDetail.setProfit(salesOrderDetail.getSalesOrder().getTotalPrice());
                 newPromotionDetail.setPrice(newPromotionPrice);
