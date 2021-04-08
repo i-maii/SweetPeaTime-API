@@ -3,7 +3,7 @@ spring:
      driverClassName: com.mysql.jdbc.Driver
      url: jdbc:mysql://localhost:3306/SweetPeaTimes
      username: root
-     password: Fah@232538
+     password: 1maiimaii
 #     jpa:
 #        hibernate.ddl-auto: update
 #        generate-ddl: true
