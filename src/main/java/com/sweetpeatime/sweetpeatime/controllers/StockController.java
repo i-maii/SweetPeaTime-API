@@ -1,6 +1,7 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
 import com.sweetpeatime.sweetpeatime.dto.AddStockDTO;
+import com.sweetpeatime.sweetpeatime.dto.ChangeStockDTO;
 import com.sweetpeatime.sweetpeatime.dto.DeleteStockDTO;
 import com.sweetpeatime.sweetpeatime.entities.*;
 import com.sweetpeatime.sweetpeatime.repositories.*;
@@ -86,7 +87,9 @@ public class StockController {
     }
 
     @PostMapping("/deleteStock")
-    public void deleteStockQuantity(@RequestBody List<DeleteStockDTO> deleteStock) throws ParseException {
+    public List<ChangeStockDTO> deleteStockQuantity(@RequestBody List<DeleteStockDTO> deleteStock) throws ParseException {
+        List<ChangeStockDTO> changeStockDTOList = new ArrayList<>();
+
         int dlQuantity = 0;
         for (DeleteStockDTO ds: deleteStock) {
             List<Stock> stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(ds.getFlowerId(), ds.getFloristId());
@@ -112,36 +115,43 @@ public class StockController {
 
             List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findAllByStatus("active");
             for (PromotionDetail promotionDetail: promotionDetails){
-                String flag = null;
+                boolean recal = false;
                 List<FlowerFormulaDetail> formulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(promotionDetail.getFlowerFormula().getId());
-                formula:
                 for(FlowerFormulaDetail formulaDetail: formulaDetails){
                     if(formulaDetail.getFlower().getFlowerId().equals(ds.getFlowerId())){
-                        flag = "Y";
+                        recal = true;
                         int available = formulaDetail.getQuantity() * promotionDetail.getQuantity();
                         if (dlQuantity >= available){
                             promotionDetail.setQuantity(promotionDetail.getQuantity());
                         }else{
                             int availablePromotion = dlQuantity / formulaDetail.getQuantity();
-                            if(availablePromotion > 0){
+                            ChangeStockDTO changeStockDTO = new ChangeStockDTO();
+                            if(availablePromotion > 0){ //มีการเปลี่ยนแปลงจำนวนช่อโปรโมชั่น ชื่อ จำนวนที่เปลี่ยน
+                                changeStockDTO.setFormulaName(promotionDetail.getFlowerFormula().getName());
+                                changeStockDTO.setBeforeQuantity(promotionDetail.getQuantity());
+                                changeStockDTO.setRemainQuantity(availablePromotion);
+                                changeStockDTO.setStatus("change");
+                                changeStockDTOList.add(changeStockDTO);
                                 promotionDetail.setQuantity(availablePromotion);
-                            }else if(availablePromotion < 1){
+                            }else if(availablePromotion == 0){ //ไม่สามารถทำโปรโมชั่นนี้ได้แล้ว เนื่องจากจำนวนดอกไม้ไม่เพียงพอ
+                                changeStockDTO.setFormulaName(promotionDetail.getFlowerFormula().getName());
+                                changeStockDTO.setStatus("inactive");
+                                changeStockDTOList.add(changeStockDTO);
                                 promotionDetail.setQuantity(availablePromotion);
                                 promotionDetail.setStatus("inactive");
                             }
                             this.promotionDetailRepository.saveAndFlush(promotionDetail);
                         }
                         break;
-                    }else{
-                        flag = "N";
-                        continue formula;
                     }
                 }
-                if(flag == "N"){
+                if(!recal){
                     getRecalculate();
                 }
             }
         }
+
+        return changeStockDTOList;
     }
 
     @PostMapping("/addStock")
