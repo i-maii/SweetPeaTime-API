@@ -112,9 +112,8 @@ public class StockController {
 
             List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findAllByStatus("active");
             for (PromotionDetail promotionDetail: promotionDetails){
-                String flag = null;
+                String flag = "N";
                 List<FlowerFormulaDetail> formulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(promotionDetail.getFlowerFormula().getId());
-                formula:
                 for(FlowerFormulaDetail formulaDetail: formulaDetails){
                     if(formulaDetail.getFlower().getFlowerId().equals(ds.getFlowerId())){
                         flag = "Y";
@@ -132,9 +131,6 @@ public class StockController {
                             this.promotionDetailRepository.saveAndFlush(promotionDetail);
                         }
                         break;
-                    }else{
-                        flag = "N";
-                        continue formula;
                     }
                 }
                 if(flag == "N"){
