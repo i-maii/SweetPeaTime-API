@@ -11,11 +11,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @Controller
@@ -148,7 +146,7 @@ public class FlowerFormulaController {
             //selectQueryStr.append("AND f.name like :name ");
             selectQueryStr.append("AND f.name like CONCAT('%', :name, '%') ");
         if(flowerCat != null)
-            selectQueryStr.append("AND f.category = :flowerCat ");
+            selectQueryStr.append("AND f.formulaType = :flowerCat ");
         if(florist != null)
         {
             if(pattern !=null) {
