@@ -139,6 +139,7 @@ public class SalesOrderController {
         salesOrder.setReceiverPhone(createSalesOrder.getReceiverPhone());
         salesOrder.setReceiverDateTime(createSalesOrder.getReceiveDateTime());
         salesOrder.setTotalPrice(createSalesOrder.getTotalPrice());
+        salesOrder.setStatus("จ่ายแล้ว");
 
         //create salesorider
         SalesOrder salesOrder1 = this.salesOrderRepository.saveAndFlush(salesOrder);
