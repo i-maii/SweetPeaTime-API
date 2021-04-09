@@ -149,8 +149,6 @@ public class SalesOrderController {
        for (FlowerMultipleDto flowerMultipleDto : createSalesOrder.getFlowerMultipleDtoList()){
            if (flowerMultipleDto.getFlowerAvailable() >= flowerMultipleDto.getOrderTotal()) {
                List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findOneByFlowerFormulaIdAndStatusAndExpiryDateAndFlorist(flowerMultipleDto.getFlowerFormula(), createSalesOrder.getReceiveDateTime(), createSalesOrder.getFlorist());
-
-
                for (int i = 1; i <= flowerMultipleDto.getOrderTotal(); i++){
                    if(promotionDetails.size() > 1){
                        PromotionDetail promotionDetail = new PromotionDetail();
@@ -167,6 +165,25 @@ public class SalesOrderController {
                        if (promotionDetail.getQuantity() != 0){
                            if (promotionDetails.get(0).getType() == null){
                                deleteStock++;
+                               List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerMultipleDto.getFlowerFormula());
+
+                               //decrease stock
+                               for (FlowerFormulaDetail f: flowerFormulaDetail) {
+                                   List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
+                                   int tempQuan = f.getQuantity() * flowerMultipleDto.getOrderTotal();
+                                   for (Stock stock : stocks) {
+                                       if (tempQuan >= stock.getQuantity()) {
+                                           tempQuan -= stock.getQuantity();
+                                           stock.setQuantity(tempQuan);
+                                           this.stockRepository.saveAndFlush(stock);
+                                       } else {
+                                           tempQuan = stock.getQuantity() - tempQuan;
+                                           stock.setQuantity(tempQuan);
+                                           this.stockRepository.saveAndFlush(stock);
+                                           break;
+                                       }
+                                   }
+                               }
                            }
                            promotionDetail.setQuantity(promotionDetail.getQuantity() - i);
                            promotionDetail.setQuantitySold(promotionDetail.getQuantitySold() + i);
@@ -176,6 +193,25 @@ public class SalesOrderController {
                        if (promotionDetails.get(0).getQuantity() != 0){
                            if (promotionDetails.get(0).getType() == null){
                                deleteStock++;
+                               List<FlowerFormulaDetail> flowerFormulaDetail = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerMultipleDto.getFlowerFormula());
+
+                               //decrease stock
+                               for (FlowerFormulaDetail f: flowerFormulaDetail) {
+                                   List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
+                                   int tempQuan = f.getQuantity() * flowerMultipleDto.getOrderTotal();
+                                   for (Stock stock : stocks) {
+                                       if (tempQuan >= stock.getQuantity()) {
+                                           tempQuan -= stock.getQuantity();
+                                           stock.setQuantity(tempQuan);
+                                           this.stockRepository.saveAndFlush(stock);
+                                       } else {
+                                           tempQuan = stock.getQuantity() - tempQuan;
+                                           stock.setQuantity(tempQuan);
+                                           this.stockRepository.saveAndFlush(stock);
+                                           break;
+                                       }
+                                   }
+                               }
                            }
 
                            promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - i);
