@@ -187,6 +187,10 @@ public class SalesOrderController {
                            }
                            promotionDetail.setQuantity(promotionDetail.getQuantity() - i);
                            promotionDetail.setQuantitySold(promotionDetail.getQuantitySold() + i);
+                           double profit = promotionDetail.getProfit();
+                           int quantity = promotionDetail.getQuantity();
+                           int totalProfit = (int) (profit * quantity);
+                           promotionDetail.setTotalProfit(totalProfit);
                            this.promotionDetailRepository.saveAndFlush(promotionDetail);
                        }
                    } else {
@@ -216,6 +220,10 @@ public class SalesOrderController {
 
                            promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - i);
                            promotionDetails.get(0).setQuantitySold(promotionDetails.get(0).getQuantitySold() + i);
+                           double profit = promotionDetails.get(0).getProfit();
+                           int quantity = promotionDetails.get(0).getQuantity();
+                           int totalProfit = (int) (profit * quantity);
+                           promotionDetails.get(0).setTotalProfit(totalProfit);
                            this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
                        }
                    }

@@ -21,6 +21,7 @@ public class PromotionDetail {
     private Date expiryDate;
     private Florist florist;
     private String type;
+    private Integer totalProfit;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -119,5 +120,13 @@ public class PromotionDetail {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Integer getTotalProfit() {
+        return totalProfit;
+    }
+
+    public void setTotalProfit(Integer totalProfit) {
+        this.totalProfit = totalProfit;
     }
 }
