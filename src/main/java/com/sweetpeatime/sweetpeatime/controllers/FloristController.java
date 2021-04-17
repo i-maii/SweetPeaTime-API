@@ -1,9 +1,7 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
-import antlr.ASTNULLType;
 import com.sweetpeatime.sweetpeatime.entities.Florist;
 import com.sweetpeatime.sweetpeatime.entities.FloristFee;
-import com.sweetpeatime.sweetpeatime.entities.SalesOrder;
 import com.sweetpeatime.sweetpeatime.repositories.FloristFeeRepository;
 import com.sweetpeatime.sweetpeatime.repositories.FloristRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,13 @@ public class FloristController {
     @GetMapping(value="/getAll")
     public List<Florist> getAllFlorist() {
         return this.floristRepository.findAll();
+    }
+
+    @GetMapping(value="/getById")
+    public Florist getFloristById(
+            @RequestParam("id") Integer id
+    ) {
+        return this.floristRepository.findFloristById(id);
     }
 
     @GetMapping(value="/getAllFloristFee")

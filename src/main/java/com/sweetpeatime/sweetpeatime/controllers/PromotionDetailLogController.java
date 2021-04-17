@@ -15,24 +15,42 @@ import java.util.List;
 @RequestMapping(value="/promotionDetailLog")
 public class PromotionDetailLogController {
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     PromotionDetailLogRepository promotionDetailLogRepository;
 
     @GetMapping(value = "/normal")
     public List<PromotionDetailLog> getNormalPromotion() throws ParseException {
-        String dateInStr = this.dateFormat.format(new Date());
-        Date date = this.dateFormat.parse(dateInStr);
+        String dateInStr = dateFormat.format(new Date());
+        Date date = dateFormat.parse(dateInStr);
 
         return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "normal", "active");
     }
 
     @GetMapping(value = "/current")
     public List<PromotionDetailLog> getCurrentPromotion() throws ParseException {
-        String dateInStr = this.dateFormat.format(new Date());
-        Date date = this.dateFormat.parse(dateInStr);
+        String dateInStr = dateFormat.format(new Date());
+        Date date = dateFormat.parse(dateInStr);
 
         return this.promotionDetailLogRepository.findPromotionDetailLogsByPromotionDateAndPromotionTypeAndStatusOrderBySequenceAsc(date, "current", "active");
+    }
+
+    @GetMapping(value = "/suggest")
+    public List<PromotionDetailLog> getSuggestPromotion() {
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusOrderBySequenceAsc("active");
+    }
+
+    @GetMapping(value = "/promotionDetailLog")
+    public List<PromotionDetailLog> getPromotionDetailLog() throws ParseException {
+
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndQuantityGreaterThanAndPromotionTypeOrderByLotStock("active", 0, "normal");
+
+    }
+
+    @GetMapping(value = "/promotionDetailLogRemain")
+    public List<PromotionDetailLog> getPromotionDetailLogRemain() throws ParseException {
+
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndQuantityGreaterThanAndPromotionType("active", 0, "remain");
     }
 }

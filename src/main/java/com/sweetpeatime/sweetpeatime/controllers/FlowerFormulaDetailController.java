@@ -1,7 +1,6 @@
 package com.sweetpeatime.sweetpeatime.controllers;
 
 import com.sweetpeatime.sweetpeatime.entities.FlowerFormulaDetail;
-import com.sweetpeatime.sweetpeatime.entities.FlowerQuantityAvailableDto;
 import com.sweetpeatime.sweetpeatime.entities.PromotionDetail;
 import com.sweetpeatime.sweetpeatime.entities.Stock;
 import com.sweetpeatime.sweetpeatime.repositories.FlowerFormulaDetailRepository;
@@ -33,7 +32,7 @@ public class FlowerFormulaDetailController {
     @Autowired
     private PromotionDetailRepository promotionDetailRepository;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @GetMapping(value="/getAll")
     public List<FlowerFormulaDetail> getAll() {
@@ -64,12 +63,9 @@ public class FlowerFormulaDetailController {
 
     @GetMapping(value="/getFormulaDetail")
     public Integer getFlowerFormularDetail(@RequestParam("formulaId") Integer formulaId, @RequestParam("floristId") Integer floristId, @RequestParam("orderDate") String orderDate) throws ParseException {
-        List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
-        List<Stock> stocks = new ArrayList<>();
-        List<FlowerQuantityAvailableDto> flowerQuantityAvailableDtos = new ArrayList<>();
         List<PromotionDetail> promotionDetails = this.promotionDetailRepository.findAllByFlowerFormulaIdAndFloristId(formulaId, floristId);
 
-        Date date = this.simpleDateFormat.parse(orderDate);
+        Date date = simpleDateFormat.parse(orderDate);
         int available = 0;
 
         for( PromotionDetail promotionDetail : promotionDetails) {
@@ -91,7 +87,7 @@ public class FlowerFormulaDetailController {
         int quantityAvailablePerFormula = 0;
 
         int stockQuantity = 0;
-        Date date = this.simpleDateFormat.parse(orderDate);
+        Date date = simpleDateFormat.parse(orderDate);
 
 
         Calendar lotDate = Calendar.getInstance();

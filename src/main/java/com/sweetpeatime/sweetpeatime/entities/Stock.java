@@ -45,6 +45,7 @@ public class Stock {
     private Date lot;
     private Florist florist;
     private FlowerPrice flowerPrice;
+    private Integer deleteQty;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -108,5 +109,13 @@ public class Stock {
 
     public void setFlowerPrice(FlowerPrice flowerPrice) {
         this.flowerPrice = flowerPrice;
+    }
+
+    public Integer getDeleteQty() {
+        return deleteQty;
+    }
+
+    public void setDeleteQty(Integer deleteQty) {
+        this.deleteQty = deleteQty;
     }
 }

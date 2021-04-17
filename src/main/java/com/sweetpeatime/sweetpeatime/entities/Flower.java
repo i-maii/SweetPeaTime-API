@@ -1,5 +1,6 @@
 package com.sweetpeatime.sweetpeatime.entities;
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 
 @Entity
 @Table(name="Flower")

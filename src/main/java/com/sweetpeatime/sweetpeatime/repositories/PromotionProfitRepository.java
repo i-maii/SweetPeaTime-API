@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PromotionProfitRepository extends JpaRepository<PromotionProfit, Integer> {
+
+    PromotionProfit findOneByAge(Integer age);
     List<PromotionProfit> findAllByAgeAndFlowerType(Integer age, String flowerType);
 }

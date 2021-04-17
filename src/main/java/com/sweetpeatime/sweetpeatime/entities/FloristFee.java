@@ -1,29 +1,22 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
 
 @Entity
-@Table(name="FloristFee")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "FloristFee")
 public class FloristFee {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer preparationTime;
     private String size;
     private Integer fee;
-    private Integer floristId;
+    private Florist florist;
 
-    public FloristFee(){}
-
-    public FloristFee(Integer id, Integer preparationTime, String size, Integer fee, Integer floristId) {
-        this.id = id;
-        this.preparationTime = preparationTime;
-        this.size = size;
-        this.fee = fee;
-        this.floristId = floristId;
-    }
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer getId() {
         return id;
     }
@@ -53,14 +46,17 @@ public class FloristFee {
     }
 
     public void setFee(Integer fee) {
-        this.id = fee;
+        this.fee = fee;
     }
 
-    public Integer getFloristId() {
-        return floristId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floristId", referencedColumnName = "id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    public Florist getFlorist() {
+        return florist;
     }
 
-    public void setFloristId(Integer floristId) {
-        this.floristId = floristId;
+    public void setFlorist(Florist florist) {
+        this.florist = florist;
     }
 }
