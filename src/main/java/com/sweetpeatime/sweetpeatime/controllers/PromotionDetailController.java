@@ -38,6 +38,13 @@ public class PromotionDetailController {
         return this.promotionDetailRepository.findPromotionDetailsByStatus("active");
     }
 
+    @GetMapping(value = "/getAllPromotion")
+    public List<PromotionDetail> getAllPromotion() {
+
+
+        return this.promotionDetailRepository.findAll();
+    }
+
     @PostMapping(value = "/updatePromotion")
     public void updatePromotion(@RequestParam("promotionId") Integer promotionId) {
         //System.out.println("test : " + promotionId);

@@ -57,6 +57,11 @@ public class FlowerFormulaDetailController {
         return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(9);
     }
 
+    @GetMapping(value="/getFormulaDetailsFromFormulaId")
+    public List<FlowerFormulaDetail> getFormulaDetailsFromFormulaId(@RequestParam("formulaId") Integer formulaId){
+        return this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
+    }
+
     @GetMapping(value="/getFormulaDetail")
     public Integer getFlowerFormularDetail(@RequestParam("formulaId") Integer formulaId, @RequestParam("floristId") Integer floristId, @RequestParam("orderDate") String orderDate) throws ParseException {
         List<FlowerFormulaDetail> flowerFormulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(formulaId);
