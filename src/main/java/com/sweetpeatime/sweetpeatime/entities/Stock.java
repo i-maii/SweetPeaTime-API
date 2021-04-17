@@ -18,6 +18,22 @@ import java.util.Date;
                 )
         }
 )
+@SqlResultSetMapping(
+        name="stockLotMapping",
+        classes={
+                @ConstructorResult(
+                        targetClass= StockLot.class,
+                        columns={
+                                @ColumnResult(name="id", type = Integer.class),
+                                @ColumnResult(name="flowerId", type = Integer.class),
+                                @ColumnResult(name="floristId", type = Integer.class),
+                                @ColumnResult(name="quantity", type = Integer.class),
+                                @ColumnResult(name="unit", type = String.class),
+                                @ColumnResult(name="lot", type = Date.class)
+                        }
+                )
+        }
+)
 @Entity
 @Table(name="Stock")
 public class Stock {

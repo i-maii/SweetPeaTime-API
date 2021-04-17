@@ -40,4 +40,17 @@ public class PromotionDetailLogController {
     public List<PromotionDetailLog> getSuggestPromotion() {
         return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusOrderBySequenceAsc("active");
     }
+
+    @GetMapping(value = "/promotionDetailLog")
+    public List<PromotionDetailLog> getPromotionDetailLog() throws ParseException {
+
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndQuantityGreaterThanAndPromotionTypeOrderByLotStock("active", 0, "normal");
+
+    }
+
+    @GetMapping(value = "/promotionDetailLogRemain")
+    public List<PromotionDetailLog> getPromotionDetailLogRemain() throws ParseException {
+
+        return this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndQuantityGreaterThanAndPromotionType("active", 0, "remain");
+    }
 }

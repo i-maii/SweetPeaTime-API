@@ -21,8 +21,7 @@ public interface PromotionDetailRepository extends JpaRepository<PromotionDetail
 
 
     List<PromotionDetail> findAllByPromotionId(Integer promotionId);
-
     PromotionDetail findOneByFlowerFormulaIdAndExpiryDate(Integer flowerFormulaId, LocalDateTime expiryDate);
-
     PromotionDetail findAllById(Integer id);
+    List<PromotionDetail> findAllByStatus(String status);
 }

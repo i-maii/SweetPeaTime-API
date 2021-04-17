@@ -2,17 +2,19 @@ package com.sweetpeatime.sweetpeatime.controllers;
 
 import com.sweetpeatime.sweetpeatime.entities.*;
 import com.sweetpeatime.sweetpeatime.repositories.*;
-import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.EntityManager;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value="/salesOrder")
@@ -45,6 +47,9 @@ public class SalesOrderController {
 
     @Autowired
     private PromotionProfitRepository promotionProfitRepository;
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Autowired
     private FloristFeeRepository floristFeeRepository;
@@ -88,13 +93,56 @@ public class SalesOrderController {
     }
 
     @GetMapping(value="/searchSalesOrderDetailListDto")
-    public List<SalesOrderDetailListDto> searchSalesOrderListDto(@RequestParam("startDate") Date startDate,@RequestParam("endDate") Date endDate)
-    {
+    public List<SalesOrderDetailListDto> searchSalesOrderListDto(@RequestParam("startDate") String startD,@RequestParam("endDate") String endD, @RequestParam("floristId") String floristId) throws ParseException {
        List<SalesOrderDetailListDto> salesOrderDetailListDtos = new ArrayList<>();
+       List<SalesOrder>salesOrdersResult = new ArrayList<>();
+        Date startDate = null;
+        Date endDate = null;
 
-        List<SalesOrder> salesOrders = this.salesOrderRepository.findAll();
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
 
-        for (SalesOrder salesOrder : salesOrders) {
+       if (!startD.isEmpty()) {
+           startDate = format.parse(startD);
+       }
+       if(!endD.isEmpty()) {
+           endDate = format.parse(endD);
+       }
+
+        StringBuilder selectQueryStr = new StringBuilder("SELECT s FROM SalesOrder s WHERE 1 = 1 ");
+        if (startDate == null && endDate == null)
+        {
+            salesOrdersResult = this.salesOrderRepository.findAll();
+
+        }
+        else {
+
+            if ( startDate == null && endDate != null)
+            {
+                selectQueryStr.append("AND s.date <= :endDate ");
+
+            }
+            else if ( startDate != null && endDate == null)
+            {
+                selectQueryStr.append("AND s.date >= :startDate ");
+
+            }
+            else if( startDate != null && endDate != null)
+            {
+                selectQueryStr.append("AND s.date BETWEEN :startDate AND :endDate  ");
+
+            }
+
+            selectQueryStr.append("ORDER BY s.date ");
+            Query selectQuery = entityManager.createQuery(selectQueryStr.toString(), SalesOrder.class);
+
+            if (startDate != null)
+                selectQuery.setParameter("startDate", startDate);
+            if (endDate != null)
+                selectQuery.setParameter("endDate", endDate);
+
+            salesOrdersResult = selectQuery.getResultList();
+        }
+        for (SalesOrder salesOrder : salesOrdersResult) {
             SalesOrderDetailListDto salesOrderDetailListDto = new SalesOrderDetailListDto();
             salesOrderDetailListDto.setId(salesOrder.getId());
             salesOrderDetailListDto.setCustomerName(salesOrder.getCustomerName());
@@ -111,10 +159,34 @@ public class SalesOrderController {
             salesOrderDetailListDto.setNote(salesOrder.getNote());
             salesOrderDetailListDto.setStatus(salesOrder.getStatus());
 
-            List<SalesOrderDetail> salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrder.getId());
-            salesOrderDetailListDto.setSalesOrderDetails(salesOrderDetails);
-            salesOrderDetailListDtos.add(salesOrderDetailListDto);
+            List<SalesOrderDetail> salesOrderDetails = new ArrayList<>();
+
+            salesOrderDetails = this.salesOrderDetailRepository.findAllBySalesOrderId(salesOrder.getId());
+          //  salesOrderDetails = (List<SalesOrderDetail>) CollectionUtils.filter(salesOrderDetails, p -> (((SalesOrderDetail) p).getFlorist()).getId().intValue() == 1);
+
+//            if(floristId != null)
+//            {
+//                //Predicate<SalesOrderDetail> byFlorist = detail -> detail.getFlorist().getId().intValue() = floristId;
+//              //   salesOrderDetails = salesOrderDetails.stream().filter(byFlorist).collect(Collectors.toList());
+//                //selectQueryStr.append("AND s.date BETWEEN :startDate AND :endDate  ");
+
+
+//            }
+            if(!floristId.isEmpty()) {
+                salesOrderDetails = salesOrderDetails.stream().filter(s -> s.getFlorist().getId() == Integer.parseInt(floristId)).collect(Collectors.toList());
+                ;
+                if (salesOrderDetails.size() > 0) {
+                    salesOrderDetailListDto.setSalesOrderDetails(salesOrderDetails);
+                    salesOrderDetailListDtos.add(salesOrderDetailListDto);
+                }
+            }
+            else
+            {
+                salesOrderDetailListDto.setSalesOrderDetails(salesOrderDetails);
+                salesOrderDetailListDtos.add(salesOrderDetailListDto);
+            }
         }
+
         return salesOrderDetailListDtos;
     }
 

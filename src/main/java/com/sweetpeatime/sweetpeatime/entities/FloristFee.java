@@ -1,15 +1,14 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name="FloristFee")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "FloristFee")
 public class FloristFee {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer preparationTime;
     private String size;

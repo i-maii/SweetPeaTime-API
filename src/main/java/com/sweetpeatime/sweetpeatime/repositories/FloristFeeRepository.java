@@ -5,5 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FloristFeeRepository extends JpaRepository<FloristFee, Integer> {
 
-    public FloristFee findAllByFloristIdAndSize(Integer floristId, String size);
+    FloristFee findAllByFloristIdAndSize(Integer floristId, String size);
+    FloristFee findFloristFeeByFloristIdAndSize(Integer floristId,String size);
+
+
+    FloristFee findFloristFeeByIdAndSize(Integer id, String size);
 }
