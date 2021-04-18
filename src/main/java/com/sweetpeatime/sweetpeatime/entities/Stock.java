@@ -29,7 +29,8 @@ import java.util.Date;
                                 @ColumnResult(name="floristId", type = Integer.class),
                                 @ColumnResult(name="quantity", type = Integer.class),
                                 @ColumnResult(name="unit", type = String.class),
-                                @ColumnResult(name="lot", type = Date.class)
+                                @ColumnResult(name="lot", type = Date.class),
+                                @ColumnResult(name="deleteQty", type = Integer.class)
                         }
                 )
         }

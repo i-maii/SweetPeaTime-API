@@ -188,6 +188,7 @@ public class StockController {
             s.setQuantity(stockItem.getQuantity());
             s.setUnit(stockItem.getUnit());
             s.setLot(stockItem.getLot());
+            s.setDeleteQty(stockItem.getDeleteQty());
             stock.add(s);
         }
 
