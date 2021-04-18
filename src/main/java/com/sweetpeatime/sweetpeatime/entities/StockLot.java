@@ -11,14 +11,18 @@ public class StockLot {
     private Integer quantity;
     private String unit;
     private Date lot;
+    private Integer deleteQty;
 
-    public StockLot(Integer id, Integer flowerId, Integer floristId, Integer quantity, String unit, Date lot) {
+
+    public StockLot(Integer id, Integer flowerId, Integer floristId, Integer quantity, String unit, Date lot, Integer deleteQty) {
         this.id = id;
         this.flowerId = flowerId;
         this.floristId = floristId;
         this.quantity = quantity;
         this.unit = unit;
         this.lot = lot;
+        this.deleteQty = deleteQty;
+
     }
 
     @Id
@@ -64,4 +68,8 @@ public class StockLot {
     public void setLot(Date unit) {
         this.lot = unit;
     }
+
+    public Integer getDeleteQty() { return deleteQty; }
+
+    public void setDeleteQty(Integer deleteQty) { this.deleteQty = deleteQty; }
 }

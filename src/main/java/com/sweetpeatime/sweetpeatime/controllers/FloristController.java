@@ -45,25 +45,7 @@ public class FloristController {
     }
 
     @GetMapping(value="/getFloristFeeBySize")
-    public List<FloristFee> getFloristFeeBySize(@RequestParam("floristId") Integer floristId,@RequestParam("size") String size) {
-
-       List<FloristFee> floristFeeResult = new ArrayList<>();
-
-        StringBuilder selectQueryStr = new StringBuilder("SELECT f FROM FloristFee f WHERE 1 = 1 ");
-        selectQueryStr.append("AND f.floristId = :floristId ");
-
-        selectQueryStr.append("AND f.size = :size");
-
-        Query selectQuery = entityManager.createQuery(selectQueryStr.toString());
-
-            if (floristId != null)
-                selectQuery.setParameter("floristId", floristId);
-            if (size != null)
-                selectQuery.setParameter("size", size);
-
-        floristFeeResult = selectQuery.getResultList();
-
-
-        return floristFeeResult;
+    public FloristFee getFloristFeeBySize(@RequestParam("floristId") Integer floristId,@RequestParam("size") String size) {
+        return this.floristFeeRepository.findAllByFloristIdAndSize(floristId, size);
     }
 }

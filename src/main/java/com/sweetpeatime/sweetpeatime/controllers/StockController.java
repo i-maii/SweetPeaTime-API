@@ -194,6 +194,7 @@ public class StockController {
             s.setQuantity(stockItem.getQuantity());
             s.setUnit(stockItem.getUnit());
             s.setLot(stockItem.getLot());
+            s.setDeleteQty(stockItem.getDeleteQty());
             stock.add(s);
         }
 
@@ -209,18 +210,34 @@ public class StockController {
         for (DeleteStockDTO ds: deleteStock) {
             List<Stock> stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(ds.getFlowerId(), ds.getFloristId());
             Integer deleteQuantity = ds.getDeleteQuantity();
+
             for (Stock s: stock) {
                 if (s.getQuantity() != 0) {
                     if (deleteQuantity > s.getQuantity()) {
-                        s.setQuantity(0);
                         deleteQuantity = deleteQuantity - s.getQuantity();
+                        if (s.getDeleteQty() != null) {
+                            s.setDeleteQty(s.getDeleteQty() + s.getQuantity());
+                        } else {
+                            s.setDeleteQty(s.getQuantity());
+                        }
+                        s.setQuantity(0);
                         this.stockRepository.saveAndFlush(s);
                     } else if (deleteQuantity < s.getQuantity()) {
                         dlQuantity = s.getQuantity() - deleteQuantity;
+                        if (s.getDeleteQty() != null) {
+                            s.setDeleteQty(deleteQuantity + s.getDeleteQty());
+                        } else {
+                            s.setDeleteQty(deleteQuantity);
+                        }
                         s.setQuantity(s.getQuantity() - deleteQuantity);
                         this.stockRepository.saveAndFlush(s);
                         break;
                     } else {
+                        if (s.getDeleteQty() != null) {
+                            s.setDeleteQty(s.getQuantity() + s.getDeleteQty());
+                        } else {
+                            s.setDeleteQty(s.getQuantity());
+                        }
                         s.setQuantity(0);
                         this.stockRepository.saveAndFlush(s);
                         break;

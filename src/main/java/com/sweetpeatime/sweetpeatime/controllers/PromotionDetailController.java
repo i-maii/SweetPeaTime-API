@@ -73,6 +73,13 @@ public class PromotionDetailController {
         return this.configurationsRepository.findAllByName("NUMBER_OF_PROMOTION");
     }
 
+    @GetMapping(value = "/getAllPromotion")
+    public List<PromotionDetail> getAllPromotion() {
+
+
+        return this.promotionDetailRepository.findAll();
+    }
+
     @PostMapping(value = "/updatePromotion")
     public void updatePromotion(@RequestParam("promotionId") Integer promotionId) {
         PromotionDetail updateStatusPromotion = this.promotionDetailRepository.findAllById(promotionId);
