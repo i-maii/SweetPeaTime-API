@@ -5,9 +5,9 @@ public class PromotionDetailCurrentDto {
     private String formulaName;
     private String size;
     private Integer quantity;
-    private Integer profit;
+    private Double profit;
     private Integer totalProfit;
-    private Integer price;
+    private Double price;
     private String locationName;
     private String image;
     private String quantityFlower;
@@ -45,9 +45,9 @@ public class PromotionDetailCurrentDto {
         this.quantity = quantity;
     }
 
-    public Integer getProfit() { return profit; }
+    public Double getProfit() { return profit; }
 
-    public void setProfit(Integer profit) {
+    public void setProfit(Double profit) {
         this.profit = profit;
     }
 
@@ -57,11 +57,11 @@ public class PromotionDetailCurrentDto {
         this.totalProfit = totalProfit;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

@@ -8,5 +8,6 @@ import java.util.List;
 public interface PromotionProfitRepository extends JpaRepository<PromotionProfit, Integer> {
 
     PromotionProfit findOneByAge(Integer age);
+    PromotionProfit findAllByFlowerType(String flowerType);
     List<PromotionProfit> findAllByAgeAndFlowerType(Integer age, String flowerType);
 }

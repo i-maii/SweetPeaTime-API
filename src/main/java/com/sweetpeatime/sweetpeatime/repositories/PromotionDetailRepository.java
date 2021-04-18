@@ -18,10 +18,11 @@ public interface PromotionDetailRepository extends JpaRepository<PromotionDetail
     List<PromotionDetail> findOneByFlowerFormulaIdAndStatusAndExpiryDateAndFlorist(Integer flowerFormulaId, Date orderDate, Integer floristId);
 
     List<PromotionDetail> findAllByFlowerFormulaIdAndFloristId(Integer flowerFormulaId, Integer floristId);
-
+    List<PromotionDetail> findPromotionDetailsByStatusAndQuantityGreaterThanOrderByTotalProfitDesc(String status, Integer quantity);
 
     List<PromotionDetail> findAllByPromotionId(Integer promotionId);
     PromotionDetail findOneByFlowerFormulaIdAndExpiryDate(Integer flowerFormulaId, LocalDateTime expiryDate);
     PromotionDetail findAllById(Integer id);
     List<PromotionDetail> findAllByStatus(String status);
+    //PromotionDetail findAllByPromotionId(Integer promotionId);
 }

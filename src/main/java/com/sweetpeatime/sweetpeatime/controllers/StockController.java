@@ -45,6 +45,9 @@ public class StockController {
     FlowerFormulaRepository flowerFormulaRepository;
 
     @Autowired
+    PromotionRepository promotionRepository;
+
+    @Autowired
     FlowerFormulaDetailRepository flowerFormulaDetailRepository;
 
     @Autowired
@@ -55,6 +58,9 @@ public class StockController {
 
     @Autowired
     PromotionProfitRepository promotionProfitRepository;
+
+    @Autowired
+    FloristFeeRepository floristFeeRepository;
 
     @PersistenceContext
     EntityManager entityManager;
@@ -281,8 +287,171 @@ public class StockController {
         }
     }
 
+    @GetMapping(value="/getPromotionSuggest")
+    public void getPromotionSuggest(List<StockRemainDto>  stockRemainDtos, String type) throws ParseException {
+
+        String dateInStr = dateFormat.format(new Date());
+        Date date = new Date();
+        LocalDate currentDate = LocalDate.now();
+        LocalDate dateTime1 = currentDate.minus(4, ChronoUnit.DAYS);
+        LocalDate createDate = currentDate.plus(0, ChronoUnit.DAYS);
+        LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
+        Date createtDate = Date.from(createDate.atStartOfDay(zoneId).toInstant());
+        Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
+        Date dateTo = dateFormat.parse(dateInStr);
+        int chkSize = 0;
+        int availableQuantity = 0;
+        int flowerLifeTime = 0;
+        int profitFlower = 0;
+        int availableQuantitySum;
+        int calProfitCurrent = 0;
+        int floristId = 0;
+        Date lot = null;
+        String floristName = null;
+        String typeFlower = null;
+
+        List<FlowerFormulaDetail> formulaDetails = new ArrayList<>();
+        List<PromotionDetailCurrentDto> promotionDetailCurrentDtos = new ArrayList<>();
+        List<StockRemainDto> stockRemainDtoList = new ArrayList<>();
+        PromotionDetailCurrentDto promotionDetailCurrentDto = new PromotionDetailCurrentDto();
+
+        for (StockRemainDto stockRemainDto: stockRemainDtos) {
+            if (stockRemainDto.getRemainQuantity() > 0) {
+                stockRemainDtoList.add(stockRemainDto);
+            }
+        }
+
+        int loop = 0;
+        other:
+        for (StockRemainDto stock : stockRemainDtoList) {
+            Flower flower = this.flowerRepository.findAllById(stock.getId());
+            loop = loop + 1;
+            if(flower.getMainCategory().equals("หลัก")){
+                List<FlowerFormulaDetail> flowerList = this.flowerFormulaDetailRepository.findAllByFlowerIdAndQuantityLessThanEqualOrderByFlowerId(stock.getId(), stock.getRemainQuantity());
+                if (flowerList.size() > 0) {
+                    recalList:
+                    for (FlowerFormulaDetail formulaDetail : flowerList) {
+                        for (FlowerFormulaDetail flowerFormulaDetail : formulaDetails) {
+                            if (formulaDetail.getFlowerFormula().getId().equals(flowerFormulaDetail.getFlowerFormula().getId())) {
+                                continue recalList;
+                            }
+                        }
+                        formulaDetails.add(formulaDetail);
+                    }
+                }
+            }else{
+                continue other;
+            }
+        }
+
+        availableQuantitySum = 9999;
+        String quantityFlower = null;
+        Integer stockAvailable = 0;
+        for (FlowerFormulaDetail flowerFormulaDetail : formulaDetails) {
+            List<FlowerFormulaDetail> formulaDetails1 = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormulaDetail.getFlowerFormula().getId());
+            chkSize = 0;
+            stockAvailable = 0;
+            int i = 0;
+            for (FlowerFormulaDetail formulaDetail : formulaDetails1) {
+                i = i +1;
+                chkFlower:
+                for (StockRemainDto stockRemainDto : stockRemainDtoList) {
+                    if (stockRemainDto.getId().equals(formulaDetail.getFlower().getFlowerId())) {
+                        chkSize = chkSize + 1;
+                        availableQuantity = stockRemainDto.getRemainQuantity() / formulaDetail.getQuantity();
+                        availableQuantitySum = Math.min(availableQuantitySum, availableQuantity);
+                        lot = stockRemainDto.getLot();
+
+                        floristId = stockRemainDto.getFloristId();
+                        floristName = stockRemainDto.getFloristName();
+                        long chkExp = date.getTime() - stockRemainDto.getLot().getTime();
+                        int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
+
+                        //หา Life Time ของดอกไม้ที่ใกล้หมดอายุ และ ชนิดของดอกไม้
+                        Flower chkFlower = this.flowerRepository.findAllById(stockRemainDto.getId());
+                        flowerLifeTime = chkFlower.getLifeTime();
+                        typeFlower = chkFlower.getFlowerType();
+
+                        int expired = flowerLifeTime - diffDays;
+                        List<PromotionProfit> promotionProfits = this.promotionProfitRepository.findAllByAgeAndFlowerType(expired, typeFlower);
+                        for (PromotionProfit profit : promotionProfits) {
+                            if (profit != null) {
+                                profitFlower = profit.getProfit();
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        continue chkFlower;
+                    }
+                }
+
+                if (i > 1) {
+                    List<Stock> stockList1 = this.stockRepository.findAllByFlowerIdAndLotGreaterThanEqualAndLotLessThanEqualAndFloristId(formulaDetail.getFlower().getFlowerId(),dateFrom, dateTo, floristId);
+                    for(Stock stock: stockList1){
+                        stockAvailable = stock.getQuantity();
+                    }
+                }
+            }
+
+            calProfitCurrent = flowerFormulaDetail.getFlowerFormula().getPrice() - ((flowerFormulaDetail.getFlowerFormula().getPrice() * profitFlower) / 100);
+
+            Florist florist = this.floristRepository.findFloristById(floristId);
+            if (availableQuantity > 0 && stockAvailable > 0) {
+                FloristFee floristFee = this.floristFeeRepository.findFloristFeeByFloristIdAndSize(florist.getId(), flowerFormulaDetail.getFlowerFormula().getSize());
+                int promotionPrice = (int) (calProfitCurrent + floristFee.getFee());
+                if (promotionPrice % 100 != 0) {
+                    promotionPrice = (promotionPrice - (promotionPrice % 100)) + 90;
+                }else{
+                    promotionPrice = promotionPrice + 90;
+                }
+
+                if (type.equals("getPromotion")) {
+                    PromotionDetailLog promotionDetailLog = new PromotionDetailLog();
+                    promotionDetailLog.setProfit((double) calProfitCurrent);
+                    promotionDetailLog.setPrice((double) promotionPrice);
+                    promotionDetailLog.setQuantity(availableQuantity);
+                    promotionDetailLog.setStatus("active");
+                    promotionDetailLog.setFlowerFormula(flowerFormulaDetail.getFlowerFormula());
+                    promotionDetailLog.setExpiryDate(expiryDate);
+                    promotionDetailLog.setPromotionType("remain");
+                    promotionDetailLog.setFlorist(florist);
+                    promotionDetailLog.setCreateDate(createtDate);
+                    promotionDetailLog.setTotalProfit(availableQuantity * calProfitCurrent);
+                    promotionDetailLog.setLotStock(lot);
+                    this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
+                }else{
+                    PromotionDetailLog promotionDetailLogs = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndFlowerFormulaIdAndFloristId("active", flowerFormulaDetail.getFlowerFormula().getId(), florist.getId());
+                    if(promotionDetailLogs != null){
+                        promotionDetailLogs.setQuantity(availableQuantity);
+                        promotionDetailLogs.setTotalProfit(availableQuantity * calProfitCurrent);
+                        this.promotionDetailLogRepository.saveAndFlush(promotionDetailLogs);
+                    }else{
+                        PromotionDetailLog promotionDetailLog = new PromotionDetailLog();
+                        promotionDetailLog.setProfit((double) calProfitCurrent);
+                        promotionDetailLog.setPrice((double) promotionPrice);
+                        promotionDetailLog.setQuantity(availableQuantity);
+                        promotionDetailLog.setStatus("active");
+                        promotionDetailLog.setFlowerFormula(flowerFormulaDetail.getFlowerFormula());
+                        promotionDetailLog.setExpiryDate(expiryDate);
+                        promotionDetailLog.setPromotionType("remain");
+                        promotionDetailLog.setFlorist(florist);
+                        promotionDetailLog.setCreateDate(createtDate);
+                        promotionDetailLog.setTotalProfit(availableQuantity * calProfitCurrent);
+                        promotionDetailLog.setLotStock(lot);
+                        this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
+                    }
+                }
+            }
+        }
+    }
+
     @PostMapping("/recalculate")
     public List<PromotionDetail> getRecalculate() throws ParseException {
+
         Date date = new Date();
         int flowerLifeTime = 0;
         int profitFlower = 0;
@@ -300,12 +469,18 @@ public class StockController {
         LocalDate currentDate = LocalDate.now();
         LocalDate dateTime = currentDate.minus(7, ChronoUnit.DAYS);
         Date dateReverse = dateFormat.parse(String.valueOf(dateTime));
+        LocalDate createDate = currentDate.plus(0, ChronoUnit.DAYS);
 
         //For Check Duplicate
+        LocalDate dateTime1 = currentDate.minus(14, ChronoUnit.DAYS);
+        LocalDate dateTime2 = currentDate.minus(1, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
 
         ZoneId zoneId = ZoneId.systemDefault();
+        Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
+        Date dateTo = Date.from(dateTime2.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
+        Date createtDate = Date.from(createDate.atStartOfDay(zoneId).toInstant());
 
         //Get number of promotion
         List<Configurations> config = this.configurationsRepository.findAllByName("NUMBER_OF_PROMOTION");
@@ -334,18 +509,35 @@ public class StockController {
                 typeFlower = flower.getFlowerType();
 
                 int expired = flowerLifeTime - diffDays;
-                if (expired > 0 && expired <= 3) {
-                    newStocks.add(stock);
-                    StockRemainDto stockRemainDto = new StockRemainDto();
-                    stockRemainDto.setId(stock.getFlower().getFlowerId());
-                    stockRemainDto.setFlowerName(stock.getFlower().getFlowerName());
-                    stockRemainDto.setRemainQuantity(stock.getQuantity());
-                    stockRemainDto.setFloristId(stock.getFlorist().getId());
-                    stockRemainDto.setFloristName(stock.getFlorist().getName());
-                    stockRemainDto.setLot(stock.getLot());
-                    stockRemainDtos.add(stockRemainDto);
-                } else {
-                    continue outer;
+                if (typeFlower.equals("ดอกไม้สด")) {
+                    if (expired > 0 && expired <= 3) {
+                        newStocks.add(stock);
+                        StockRemainDto stockRemainDto = new StockRemainDto();
+                        stockRemainDto.setId(stock.getFlower().getFlowerId());
+                        stockRemainDto.setFlowerName(stock.getFlower().getFlowerName());
+                        stockRemainDto.setRemainQuantity(stock.getQuantity());
+                        stockRemainDto.setFloristId(stock.getFlorist().getId());
+                        stockRemainDto.setFloristName(stock.getFlorist().getName());
+                        stockRemainDto.setLot(stock.getLot());
+                        stockRemainDtos.add(stockRemainDto);
+                    } else {
+                        continue outer;
+                    }
+                }else{
+                    PromotionProfit profit = this.promotionProfitRepository.findAllByFlowerType("ดอกไม้แห้ง");
+                    int ageFlower = profit.getAge();
+                    int expiredFlower = (flowerLifeTime * ageFlower / 100);
+                    if (expired > 0 && expired <= expiredFlower) {
+                        newStocks.add(stock);
+                        StockRemainDto stockRemainDto = new StockRemainDto();
+                        stockRemainDto.setId(stock.getFlower().getFlowerId());
+                        stockRemainDto.setFlowerName(stock.getFlower().getFlowerName());
+                        stockRemainDto.setRemainQuantity(stock.getQuantity());
+                        stockRemainDto.setFloristId(stock.getFlorist().getId());
+                        stockRemainDto.setFloristName(stock.getFlorist().getName());
+                        stockRemainDto.setLot(stock.getLot());
+                        stockRemainDtos.add(stockRemainDto);
+                    }
                 }
             }
         }
@@ -379,6 +571,18 @@ public class StockController {
                             continue recalDup;
                         }
                     }
+
+                    //Check Duplicate week
+                    List<Promotion> promotions = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateFrom, dateTo);
+                    for(Promotion promotion: promotions){
+                        List<PromotionDetail> promotionDetails1 = this.promotionDetailRepository.findAllByPromotionId(promotion.getId());
+                        for(PromotionDetail promotionDetail: promotionDetails1){
+                            if(q.getFlowerFormula().getId().equals(promotionDetail.getFlowerFormula().getId())){
+                                continue recalDup;
+                            }
+                        }
+                    }
+
                     listFormula.add(q);
                 }
             }
@@ -428,6 +632,13 @@ public class StockController {
 
                 }
                 if (formulas.size() == chkSize && availableQuantitySum > 0){
+
+                    Configurations configurations = this.configurationsRepository.getValueByName("MAX_QUANTITY_PROMOTION");
+                    int maxQuantity = configurations.getValue();
+                    if (availableQuantitySum > maxQuantity){
+                        availableQuantitySum = maxQuantity;
+                    }
+
                     PromotionDetail promotionDetail = new PromotionDetail();
                     promotionDetail.setStatus("active");
                     promotionDetail.setProfit((double) profitFormula);
@@ -525,6 +736,7 @@ public class StockController {
                     promotionDetailArrayList.remove(promotionDetail);
                 }
                 promotionDetails.remove(promotionDetail);
+
             }
         }
 
@@ -535,7 +747,7 @@ public class StockController {
             this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
         }
 
-        outer:
+        //outer:
         for(PromotionDetail promotionDetail1: promotionDetailArrayList){
             PromotionDetailLog promotionDetailLogs = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndFlowerFormulaIdAndFloristId("active", promotionDetail1.getFlowerFormula().getId(), promotionDetail1.getFlorist().getId());
             if(promotionDetailLogs != null){
@@ -543,10 +755,25 @@ public class StockController {
                 promotionDetailLogs.setTotalProfit((int) (promotionDetail1.getQuantity() * promotionDetail1.getProfit()));
                 this.promotionDetailLogRepository.saveAndFlush(promotionDetailLogs);
             }else{
-                continue outer;
+                System.out.println(promotionDetail1.getFlowerFormula().getName());
+                PromotionDetailLog promotionDetailLog = new PromotionDetailLog();
+                promotionDetailLog.setProfit(promotionDetail1.getProfit());
+                promotionDetailLog.setPrice((double)promotionDetail1.getPrice());
+                promotionDetailLog.setQuantity(promotionDetail1.getQuantity());
+                promotionDetailLog.setStatus("active");
+                promotionDetailLog.setFlowerFormula(promotionDetail1.getFlowerFormula());
+                promotionDetailLog.setExpiryDate(promotionDetail1.getExpiryDate());
+                promotionDetailLog.setPromotionType("normal");
+                promotionDetailLog.setFlorist(promotionDetail1.getFlorist());
+                promotionDetailLog.setCreateDate(createtDate);
+                promotionDetailLog.setTotalProfit((int) (promotionDetail1.getProfit() * promotionDetail1.getQuantity()));
+                promotionDetailLog.setLotStock(promotionDetail1.getLotStock());
+                this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
+                //continue outer;
             }
 
         }
+        getPromotionSuggest(stockRemainDtos, "recalculate");
         return promotionDetailArrayList;
     }
 }
