@@ -273,6 +273,7 @@ public class StockController {
                                 promotionDetail.setStatus("inactive");
                             }
                             this.promotionDetailRepository.saveAndFlush(promotionDetail);
+                            getRecalculate();
                         }
                         break;
                     }
@@ -314,11 +315,18 @@ public class StockController {
         LocalDate createDate = currentDate.plus(0, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
 
+        //For Check Duplicate
+        LocalDate dateTimeDupFrom = currentDate.minus(14, ChronoUnit.DAYS);
+        LocalDate dateTimeDupTo = currentDate.minus(7, ChronoUnit.DAYS);
+
         ZoneId zoneId = ZoneId.systemDefault();
         Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
         Date createtDate = Date.from(createDate.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
         Date dateTo = dateFormat.parse(dateInStr);
+        Date dateTimeFrom = Date.from(dateTimeDupFrom.atStartOfDay(zoneId).toInstant());
+        Date dateTimeTo = Date.from(dateTimeDupTo.atStartOfDay(zoneId).toInstant());
+
         int chkSize = 0;
         int availableQuantity = 0;
         int flowerLifeTime = 0;
@@ -367,6 +375,7 @@ public class StockController {
         availableQuantitySum = 9999;
         String quantityFlower = null;
         Integer stockAvailable = 0;
+        recalDup:
         for (FlowerFormulaDetail flowerFormulaDetail : formulaDetails) {
             List<FlowerFormulaDetail> formulaDetails1 = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormulaDetail.getFlowerFormula().getId());
             chkSize = 0;
@@ -414,8 +423,18 @@ public class StockController {
                 }
             }
 
-            calProfitCurrent = flowerFormulaDetail.getFlowerFormula().getPrice() - ((flowerFormulaDetail.getFlowerFormula().getPrice() * profitFlower) / 100);
+            //Check Duplicate week
+            List<Promotion> promotions = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateTimeFrom, dateTimeTo);
+            for(Promotion promotion: promotions){
+                List<PromotionDetail> promotionDetailList = this.promotionDetailRepository.findAllByPromotionId(promotion.getId());
+                for(PromotionDetail promotionDetail1: promotionDetailList){
+                    if(flowerFormulaDetail.getFlowerFormula().getId().equals(promotionDetail1.getFlowerFormula().getId())){
+                        continue recalDup;
+                    }
+                }
+            }
 
+            calProfitCurrent = flowerFormulaDetail.getFlowerFormula().getPrice() - ((flowerFormulaDetail.getFlowerFormula().getPrice() * profitFlower) / 100);
             Florist florist = this.floristRepository.findFloristById(floristId);
             if (availableQuantity > 0 && stockAvailable > 0) {
                 FloristFee floristFee = this.floristFeeRepository.findFloristFeeByFloristIdAndSize(florist.getId(), flowerFormulaDetail.getFlowerFormula().getSize());
@@ -597,6 +616,13 @@ public class StockController {
                             if(q.getFlowerFormula().getId().equals(promotionDetail.getFlowerFormula().getId())){
                                 continue recalDup;
                             }
+                        }
+                    }
+
+                    //ไม่นำ formula ที่ถูกเลือกเป็นโปรโมชั่นปัจจุบันมาแสดงอีก
+                    for (PromotionDetail promotionDetail: promotionDetailList){
+                        if(promotionDetail.getFlowerFormula().getId().equals(q.getFlowerFormula().getId())){
+                            continue recalDup;
                         }
                     }
 
