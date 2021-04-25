@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -174,6 +175,7 @@ public class PromotionDetailController {
                 }
             }
 
+            List<PromotionDetail> promotionDetailList1 = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
             List<FlowerFormulaDetail> listFormula = new ArrayList<>();
             List<FlowerFormulaDetail> formulaDetails = new ArrayList<>();
             for (Stock qStock : newStocks) {
@@ -197,6 +199,13 @@ public class PromotionDetailController {
                             if(q.getFlowerFormula().getId().equals(promotionDetail1.getFlowerFormula().getId())){
                                 continue recalDup;
                             }
+                        }
+                    }
+
+                    //ไม่นำ formula ที่ถูกเลือกเป็นโปรโมชั่นปัจจุบันมาแสดงอีก
+                    for (PromotionDetail promotionDetail: promotionDetailList1){
+                        if(promotionDetail.getFlowerFormula().getId().equals(q.getFlowerFormula().getId())){
+                            continue recalDup;
                         }
                     }
 
@@ -269,6 +278,7 @@ public class PromotionDetailController {
                     promotionDetail.setFlowerFormula(list.getFlowerFormula());
                     promotionDetail.setPrice(profitFormula);
                     promotionDetail.setLotStock(lot);
+                    promotionDetail.setTotalProfit((int) (availableQuantitySum * (double) profitFormula));
                     promotionDetails.add(promotionDetail);
 
                 }else {
@@ -280,11 +290,14 @@ public class PromotionDetailController {
         //Check Ranking
         int chkRanking = 0;
         int checkLoop = 0;
-        List<PromotionDetailLog> promotionDetailLogs = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndCreateDateLessThanEqual("active", rankingTime);
+        List<PromotionDetail> sortPromotionDetail = promotionDetails.stream()
+                .sorted(Comparator.comparing(PromotionDetail::getTotalProfit).reversed())
+                .collect(Collectors.toList());
+        List<PromotionDetailLog> promotionDetailLogs = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndCreateDateLessThanEqualOrderByTotalProfitDesc("active", rankingTime);
         for(PromotionDetailLog promotionDetailLog: promotionDetailLogs){
             checkLoop = checkLoop + 1;
             if (checkLoop <= 3) {
-                for (PromotionDetail promotionDetail : promotionDetails) {
+                for (PromotionDetail promotionDetail : sortPromotionDetail) {
                     if (promotionDetailLog.getFlowerFormula().getId().equals(promotionDetail.getFlowerFormula().getId())) {
                         chkRanking = chkRanking + 1;
                     }
@@ -328,9 +341,6 @@ public class PromotionDetailController {
                     }
                     promotionDetails.remove(promotionDetail);
                 } else {
-
-//                    System.out.println("Formula : " + promotionDetail.getFlowerFormula().getName() + ", " + promotionDetail.getQuantity() + ", " + promotionDetail.getFlorist().getName());
-
                     List<FlowerFormulaDetail> formulaDetails = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(promotionDetail.getFlowerFormula().getId());
                     flag1 = "Y";
                     flag2 = "Y";
@@ -339,11 +349,8 @@ public class PromotionDetailController {
                         for (StockRemainDto stockRemainDto1 : stockRemainDtos) {
                             if (stockRemainDto1.getId().equals(formulaDetail.getFlower().getFlowerId()) && promotionDetail.getFlorist().getId().equals(stockRemainDto1.getFloristId())) {
                                 loop = loop + 1;
-//                                System.out.println("  Befor RemainQuantity : " + stockRemainDto1.getFlowerName() + " : " + stockRemainDto1.getRemainQuantity());
                                 remain = stockRemainDto1.getRemainQuantity() - (formulaDetail.getQuantity() * promotionDetail.getQuantity());
                                 available = stockRemainDto1.getRemainQuantity() / formulaDetail.getQuantity();
-//                                System.out.println("  After remain : " + stockRemainDto1.getFlowerName() + " : " + remain);
-//                                System.out.println("  available : " + available);
                                 if (remain < 0) {
                                     flag1 = "N";
                                 } else {
@@ -352,14 +359,11 @@ public class PromotionDetailController {
                             }
                         }
 
-//                        System.out.println("  "+ flag1 + ", " + flag2 + ", " + loop);
                         if ((flag1.equals("Y") && flag2.equals("Y")) && (formulaDetails.size() == loop)) {
                             for (FlowerFormulaDetail formulaDetail1 : formulaDetails) {
                                 for (StockRemainDto stockRemainDto1 : stockRemainDtos) {
                                     if (stockRemainDto1.getId().equals(formulaDetail1.getFlower().getFlowerId()) && promotionDetail.getFlorist().getId().equals(stockRemainDto1.getFloristId())) {
-//                                        System.out.println("  + " + stockRemainDto1.getFlowerName() + ", " + stockRemainDto1.getRemainQuantity());
                                         remain = stockRemainDto1.getRemainQuantity() - (formulaDetail1.getQuantity() * promotionDetail.getQuantity());
-//                                        System.out.println("  - " + stockRemainDto1.getFlowerName() + ", " + remain);
                                         stockRemainDto1.setRemainQuantity(remain);
                                     }
                                 }
@@ -367,7 +371,6 @@ public class PromotionDetailController {
                         }
 
                         availableTotal = Math.min(availableTotal, available);
-//                        System.out.println("  availableTotal : " + availableTotal);
                         if (flag1.equals("N") || flag2.equals("N")) {
                             promotionDetail.setQuantity(availableTotal);
                             for (FlowerFormulaDetail formulaDetail2 : formulaDetails) {
@@ -540,7 +543,7 @@ public class PromotionDetailController {
                 this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
             }
 
-            List<PromotionDetailLog> promotionDetailLogList = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndCreateDateLessThanEqual("active", rankingTime);
+            List<PromotionDetailLog> promotionDetailLogList = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndCreateDateLessThanEqualOrderByTotalProfitDesc("active", rankingTime);
             for(PromotionDetailLog promotionDetailLog: promotionDetailLogList){
                 promotionDetailLog.setStatus("inactive");
                 this.promotionDetailLogRepository.saveAndFlush(promotionDetailLog);
@@ -563,11 +566,18 @@ public class PromotionDetailController {
         LocalDate createDate = currentDate.plus(0, ChronoUnit.DAYS);
         LocalDate expireDate = currentDate.plus(2, ChronoUnit.DAYS);
 
+        //For Check Duplicate
+        LocalDate dateTimeDupFrom = currentDate.minus(14, ChronoUnit.DAYS);
+        LocalDate dateTimeDupTo = currentDate.minus(7, ChronoUnit.DAYS);
+
         ZoneId zoneId = ZoneId.systemDefault();
         Date dateFrom = Date.from(dateTime1.atStartOfDay(zoneId).toInstant());
         Date createtDate = Date.from(createDate.atStartOfDay(zoneId).toInstant());
         Date expiryDate = Date.from(expireDate.atStartOfDay(zoneId).toInstant());
         Date dateTo = dateFormat.parse(dateInStr);
+        Date dateTimeFrom = Date.from(dateTimeDupFrom.atStartOfDay(zoneId).toInstant());
+        Date dateTimeTo = Date.from(dateTimeDupTo.atStartOfDay(zoneId).toInstant());
+
         int chkSize = 0;
         int availableQuantity = 0;
         int flowerLifeTime = 0;
@@ -616,6 +626,7 @@ public class PromotionDetailController {
         availableQuantitySum = 9999;
         String quantityFlower = null;
         Integer stockAvailable = 0;
+        recalDup:
         for (FlowerFormulaDetail flowerFormulaDetail : formulaDetails) {
             List<FlowerFormulaDetail> formulaDetails1 = this.flowerFormulaDetailRepository.findAllByFlowerFormulaId(flowerFormulaDetail.getFlowerFormula().getId());
             chkSize = 0;
@@ -628,11 +639,19 @@ public class PromotionDetailController {
                     if (stockRemainDto.getId().equals(formulaDetail.getFlower().getFlowerId())) {
                         chkSize = chkSize + 1;
                         availableQuantity = stockRemainDto.getRemainQuantity() / formulaDetail.getQuantity();
+
+                        Configurations configurations = this.configurationsRepository.getValueByName("MAX_QUANTITY_PROMOTION");
+                        int maxQuantity = configurations.getValue();
+                        if (availableQuantity > maxQuantity){
+                            availableQuantity = maxQuantity;
+                        }
+
                         availableQuantitySum = Math.min(availableQuantitySum, availableQuantity);
                         lot = stockRemainDto.getLot();
-
-                        floristId = stockRemainDto.getFloristId();
-                        floristName = stockRemainDto.getFloristName();
+                        if(i == 1) {
+                            floristId = stockRemainDto.getFloristId();
+                            floristName = stockRemainDto.getFloristName();
+                        }
                         long chkExp = date.getTime() - stockRemainDto.getLot().getTime();
                         int diffDays = (int) (chkExp / (24 * 60 * 60 * 1000));
 
@@ -659,6 +678,17 @@ public class PromotionDetailController {
                     List<Stock> stockList1 = this.stockRepository.findAllByFlowerIdAndLotGreaterThanEqualAndLotLessThanEqualAndFloristId(formulaDetail.getFlower().getFlowerId(),dateFrom, dateTo, floristId);
                     for(Stock stock: stockList1){
                         stockAvailable = stock.getQuantity();
+                    }
+                }
+            }
+
+            //Check Duplicate week
+            List<Promotion> promotions = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(dateTimeFrom, dateTimeTo);
+            for(Promotion promotion: promotions){
+                List<PromotionDetail> promotionDetailList = this.promotionDetailRepository.findAllByPromotionId(promotion.getId());
+                for(PromotionDetail promotionDetail1: promotionDetailList){
+                    if(flowerFormulaDetail.getFlowerFormula().getId().equals(promotionDetail1.getFlowerFormula().getId())){
+                        continue recalDup;
                     }
                 }
             }
@@ -898,6 +928,14 @@ public class PromotionDetailController {
                             }
                         }
                     }
+
+                    //ไม่นำ formula ที่ถูกเลือกเป็นโปรโมชั่นปัจจุบันมาแสดงอีก
+                    for (PromotionDetail promotionDetail: promotionDetailList){
+                        if(promotionDetail.getFlowerFormula().getId().equals(q.getFlowerFormula().getId())){
+                            continue recalDup;
+                        }
+                    }
+
                     listFormula.add(q);
                 }
             }
