@@ -6,6 +6,7 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -999,5 +1000,52 @@ public class PromotionDetailController {
 
         }
         return promotionDetailArrayList;
+    }
+
+    //Create by Nink
+    @GetMapping(value="/getPromotionByDate")
+    public List<PromotionDetail> getPromotionByDate(@RequestParam("startDate") String startD,@RequestParam("endDate") String endD) throws ParseException {
+        Date date = new Date();
+        Date startDate = null;
+        Date endDate = null;
+        List<PromotionDetail> promotionDetailList = new ArrayList<>();
+        List<Promotion> promotionList = new ArrayList<>();
+
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
+
+        if (!startD.isEmpty()) {
+            startDate = format.parse(startD);
+        }
+        if (!endD.isEmpty()) {
+            endDate = format.parse(endD);
+        }
+        StringBuilder selectQueryStr = new StringBuilder("SELECT p FROM Promotion p WHERE 1 = 1 ");
+        if (startDate == null && endDate == null) {
+            promotionList = this.promotionRepository.findAll();
+        } else {
+            promotionList = this.promotionRepository.findAllByDateGreaterThanAndDateLessThanEqual(startDate, endDate);
+        }
+
+           for (Promotion promotionItem: promotionList)
+            {
+
+                List<PromotionDetail> promotionDetailResult = this.promotionDetailRepository.findAllByPromotionId(promotionItem.getId());
+                promotionDetailList.addAll(promotionDetailResult);
+            }
+
+           return promotionDetailList;
+//
+//        List<PromotionDetailDto> promotionDetailDtos = new ArrayList<>();
+//        int flowerLifeTime = 0;
+//        int profitFlower = 0;
+//        int numPromotion = 0;
+//        int availableQuantity = 0;
+//        int availableQuantitySum = 9999;
+//        int profitSum = 120;
+//        int profitFormula = 0;
+//        int totalProfit = 0;
+//        int available = 0;
+//        int availableTotal = 9999;
+//        String typeFlower = null;
     }
 }

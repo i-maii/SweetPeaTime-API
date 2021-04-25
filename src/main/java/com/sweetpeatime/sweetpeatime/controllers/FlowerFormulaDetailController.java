@@ -99,7 +99,7 @@ public class FlowerFormulaDetailController {
                 lotDate.setTime(s.getLot());
                 lotDate.add(Calendar.DATE,f.getFlower().getLifeTime());
                 Date expireDate = lotDate.getTime();
-                if (date.before(expireDate))
+                if (expireDate.before(date))
                 {
                     stockQuantity = stockQuantity + s.getQuantity();
                 }
