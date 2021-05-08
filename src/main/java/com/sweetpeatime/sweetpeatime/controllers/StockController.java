@@ -298,13 +298,34 @@ public class StockController {
             flowerPrice.setPrice(s.getPrice());
             this.flowerPriceRepository.saveAndFlush(flowerPrice);
 
-            Stock stock = new Stock();
-            stock.setFlower(s.getFlower());
-            stock.setQuantity(s.getQuantity());
-            stock.setLot(dateFormat.parse(s.getLot()));
-            stock.setUnit(s.getFlower().getUnit());
-            stock.setFlorist(s.getFlorist());
-            stock.setFlowerPrice(flowerPrice);
+            List<Stock> oldStock = this.stockRepository.findAllByQuantityLessThanAndFlowerIdOrderByLotAsc(0, s.getFlower().getFlowerId());
+            Integer quantity = s.getQuantity();
+            for (Stock o: oldStock) {
+                if (quantity >= Math.abs(o.getQuantity())) {
+                    quantity = quantity + o.getQuantity();
+                    o.setQuantity(0);
+                } else {
+                    o.setQuantity(quantity + o.getQuantity());
+                    quantity = 0;
+                }
+                this.stockRepository.saveAndFlush(o);
+
+                if (quantity <= 0)
+                    break;
+            }
+
+            Stock stock = this.stockRepository.findStockByFlowerIdAndLotAndFloristId(s.getFlower().getFlowerId(), dateFormat.parse(s.getLot()), s.getFlorist().getId());
+            if (stock == null) {
+                stock.setFlower(s.getFlower());
+                stock.setQuantity(quantity);
+                stock.setLot(dateFormat.parse(s.getLot()));
+                stock.setUnit(s.getFlower().getUnit());
+                stock.setFlorist(s.getFlorist());
+                stock.setFlowerPrice(flowerPrice);
+            } else {
+                stock.setQuantity(quantity + stock.getQuantity());
+            }
+
             this.stockRepository.saveAndFlush(stock);
         }
     }
