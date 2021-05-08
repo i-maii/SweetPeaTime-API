@@ -49,9 +49,8 @@ public class FloristFee {
         this.fee = fee;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Florist.class)
     @JoinColumn(name = "floristId", referencedColumnName = "id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public Florist getFlorist() {
         return florist;
     }

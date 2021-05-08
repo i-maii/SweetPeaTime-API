@@ -1,35 +1,33 @@
 package com.sweetpeatime.sweetpeatime.entities;
 
-import java.util.Date;
-
 public class FlowerPriceDto {
 
-    private int formulaId;
-    private int floristId;
-    private int totalOrder;
+    private Integer formulaId;
+    private Integer floristId;
+    private Integer totalOrder;
     private String receiveDate;
 
-    public int getFormulaId() {
+    public Integer getFormulaId() {
         return formulaId;
     }
 
-    public void setFormulaId(int formulaId) {
+    public void setFormulaId(Integer formulaId) {
         this.formulaId = formulaId;
     }
 
-    public int getFloristId() {
+    public Integer getFloristId() {
         return floristId;
     }
 
-    public void setFloristId(int floristId) {
+    public void setFloristId(Integer floristId) {
         this.floristId = floristId;
     }
 
-    public int getTotalOrder() {
+    public Integer getTotalOrder() {
         return totalOrder;
     }
 
-    public void setTotalOrder(int totalOrder) {
+    public void setTotalOrder(Integer totalOrder) {
         this.totalOrder = totalOrder;
     }
 

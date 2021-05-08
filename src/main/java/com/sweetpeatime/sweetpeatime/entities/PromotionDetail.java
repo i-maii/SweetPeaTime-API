@@ -74,9 +74,8 @@ public class PromotionDetail {
         this.status = status;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Promotion.class)
     @JoinColumn(name = "promotionId", referencedColumnName = "id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public Promotion getPromotion() {
         return promotion;
     }
@@ -85,9 +84,8 @@ public class PromotionDetail {
         this.promotion = promotion;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = FlowerFormula.class)
     @JoinColumn(name = "flowerFormulaId", referencedColumnName = "id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public FlowerFormula getFlowerFormula() {
         return flowerFormula;
     }
@@ -104,9 +102,8 @@ public class PromotionDetail {
         this.expiryDate = expiryDate;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Florist.class)
     @JoinColumn(name = "floristId", referencedColumnName = "id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     public Florist getFlorist() {
         return florist;
     }
