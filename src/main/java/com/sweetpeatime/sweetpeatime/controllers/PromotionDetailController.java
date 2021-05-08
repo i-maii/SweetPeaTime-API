@@ -758,6 +758,9 @@ public class PromotionDetailController {
             @RequestBody AddPromotionDto addPromotionDto
     ) {
         Promotion promotion = this.promotionRepository.findFirstByOrderByDateDesc();
+        FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName());
+        Florist florist = this.floristRepository.findFloristByName(addPromotionDto.getLocationName());
+        PromotionDetailLog promotionDetailLog = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndFlowerFormulaIdAndFloristId("active", flowerFormula.getId(), florist.getId());
 
         if (!dateFormat.format(promotion.getDate()).equals(dateFormat.format(new Date()))) {
             List<PromotionDetail> lastActivePromotions = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
@@ -795,6 +798,7 @@ public class PromotionDetailController {
         newPromotionDetail.setFlowerFormula(this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName()));
         newPromotionDetail.setFlorist(this.floristRepository.findFloristByName(addPromotionDto.getLocationName()));
         newPromotionDetail.setTotalProfit((int) (addPromotionDto.getQuantity() * addPromotionDto.getProfit()));
+        newPromotionDetail.setExpiryDate(promotionDetailLog.getExpiryDate());
         this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
     }
 
