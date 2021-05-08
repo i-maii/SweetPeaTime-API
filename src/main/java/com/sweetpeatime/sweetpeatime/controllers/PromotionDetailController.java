@@ -761,7 +761,7 @@ public class PromotionDetailController {
         FlowerFormula flowerFormula = this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName());
         Florist florist = this.floristRepository.findFloristByName(addPromotionDto.getLocationName());
         PromotionDetailLog promotionDetailLog = this.promotionDetailLogRepository.findPromotionDetailLogsByStatusAndFlowerFormulaIdAndFloristId("active", flowerFormula.getId(), florist.getId());
-        
+
         if (!dateFormat.format(promotion.getDate()).equals(dateFormat.format(new Date()))) {
             List<PromotionDetail> lastActivePromotions = this.promotionDetailRepository.findPromotionDetailsByStatus("active");
 
