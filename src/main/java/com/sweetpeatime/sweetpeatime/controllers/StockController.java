@@ -291,6 +291,10 @@ public class StockController {
     public void addStockQuantity(@RequestBody List<AddStockDTO> addStock) throws ParseException {
         for (AddStockDTO s: addStock) {
             FlowerPrice flowerPrice = this.flowerPriceRepository.findByFlowerId(s.getFlower().getFlowerId());
+            if (flowerPrice == null) {
+                flowerPrice = new FlowerPrice();
+                flowerPrice.setFlower(s.getFlower());
+            }
             flowerPrice.setPrice(s.getPrice());
             this.flowerPriceRepository.saveAndFlush(flowerPrice);
 
