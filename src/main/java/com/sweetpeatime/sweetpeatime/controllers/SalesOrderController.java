@@ -426,7 +426,7 @@ public class SalesOrderController {
                 this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
             } else {
                 for (FlowerFormulaDetail f: flowerFormulaDetail) {
-                    Stock stock = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotDesc(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
+                    Stock stock = this.stockRepository.findTopByFlowerIdAndFloristIdOrderByLotDesc(f.getFlower().getFlowerId(), salesOrderDetail.getFlorist().getId());
                     Integer quantity = stock.getQuantity() + (f.getQuantity() * salesOrderDetail.getQuantity());
                     stock.setQuantity(quantity);
                     this.stockRepository.saveAndFlush(stock);
