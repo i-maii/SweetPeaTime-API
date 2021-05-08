@@ -88,7 +88,8 @@ public class FlowerFormulaDetailController {
 
         int stockQuantity = 0;
         Date date = simpleDateFormat.parse(orderDate);
-
+        Calendar receiveDate = Calendar.getInstance();
+        receiveDate.setTime(date);
 
         Calendar lotDate = Calendar.getInstance();
 
@@ -98,12 +99,18 @@ public class FlowerFormulaDetailController {
             {
                 lotDate.setTime(s.getLot());
                 lotDate.add(Calendar.DATE,f.getFlower().getLifeTime());
+                lotDate.add(Calendar.DATE,-1);
                 Date expireDate = lotDate.getTime();
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
                 String expireDateStr = format.format(expireDate);
                 expireDate = simpleDateFormat.parse(expireDateStr);
-                if (date.before(expireDate))
+
+                Date receiveDateForcompare = receiveDate.getTime();
+                //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String receiveDateStr = format.format(receiveDateForcompare);
+                receiveDateForcompare = simpleDateFormat.parse(receiveDateStr);
+                //date.e = null;
+                if (receiveDateForcompare.before(expireDate))
                 {
                     stockQuantity = stockQuantity + s.getQuantity();
                 }
