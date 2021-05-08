@@ -108,7 +108,7 @@ public class SalesOrderController {
            endDate = format.parse(endD);
        }
 
-        StringBuilder selectQueryStr = new StringBuilder("SELECT s FROM SalesOrder s WHERE 1 = 1 ");
+        StringBuilder selectQueryStr = new StringBuilder("SELECT s FROM SalesOrder s WHERE 1 = 1 AND s.status != 'ยกเลิก' ");
         if (startDate == null && endDate == null)
         {
             salesOrdersResult = this.salesOrderRepository.findAll();
