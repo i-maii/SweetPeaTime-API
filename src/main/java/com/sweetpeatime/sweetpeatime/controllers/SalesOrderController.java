@@ -309,21 +309,35 @@ public class SalesOrderController {
            for (FlowerFormulaDetail f: flowerFormulaDetail) {
                List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
                int temp = f.getQuantity() * flowerMultipleDto.getOrderTotal();
-               for (Stock stock : stocks) {
-                   if (temp >= stock.getQuantity()) {
-                       temp -= stock.getQuantity();
-                       stock.setQuantity(temp);
-                       this.stockRepository.saveAndFlush(stock);
+
+               for (int i = 0; i < stocks.size(); i++){
+                   if (stocks.size() > 1) {
+                       if (temp > stocks.get(i).getQuantity()) {
+                           temp = stocks.get(i).getQuantity() - temp;
+                           temp = Math.abs(temp);
+                           stocks.get(i).setQuantity(0);
+                           this.stockRepository.saveAndFlush(stocks.get(i));
+                       } else {
+                           temp = stocks.get(i).getQuantity() - temp;
+                           stocks.get(i).setQuantity(temp);
+                           this.stockRepository.saveAndFlush(stocks.get(i));
+                           break;
+                       }
+                       if (i+1 == stocks.size()) {
+                           temp = stocks.get(i).getQuantity() - temp;
+                           stocks.get(i).setQuantity(temp);
+                           this.stockRepository.saveAndFlush(stocks.get(i));
+                       }
                    } else {
-                       temp = stock.getQuantity() - temp;
-                       stock.setQuantity(temp);
-                       this.stockRepository.saveAndFlush(stock);
-                       break;
+                       temp = stocks.get(i).getQuantity() - temp;
+                       System.out.println(temp);
+                       stocks.get(i).setQuantity(temp);
+                       this.stockRepository.saveAndFlush(stocks.get(i));
                    }
                }
            }
 
-           //create salesorderDetail
+//           create salesorderDetail
            SalesOrderDetail salesOrderDetail = new SalesOrderDetail();
            salesOrderDetail.setSalesOrder(salesOrder1);
            Florist florist = this.floristRepository.findFloristById(createSalesOrder.getFlorist());
