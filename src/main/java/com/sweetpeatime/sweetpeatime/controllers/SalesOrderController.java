@@ -343,7 +343,7 @@ public class SalesOrderController {
                        //decrease stock
                        for (FlowerFormulaDetail f: flowerFormulaDetail) {
                            List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
-                           int temp = f.getQuantity() * flowerMultipleDto.getOrderTotal();
+                           int temp = f.getQuantity();
 
                            for (int j = 0; j < stocks.size(); j++){
                                if (stocks.size() > 1) {
