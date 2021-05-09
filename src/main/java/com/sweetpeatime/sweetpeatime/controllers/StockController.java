@@ -524,6 +524,7 @@ public class StockController {
         int available = 0;
         int availableTotal = 9999;
         int totalProfit = 0;
+        int calProfitCurrent = 0;
         Date lot = null;
         String typeFlower = null;
 
@@ -821,12 +822,20 @@ public class StockController {
             if(promotionDetailLogs != null){
                 promotionDetailLogs.setQuantity(promotionDetail1.getQuantity());
                 promotionDetailLogs.setTotalProfit((int) (promotionDetail1.getQuantity() * promotionDetail1.getProfit()));
+                promotionDetailLogs.setPromotionType("normal");
                 this.promotionDetailLogRepository.saveAndFlush(promotionDetailLogs);
             }else{
-                System.out.println(promotionDetail1.getFlowerFormula().getName());
+                calProfitCurrent = promotionDetail1.getFlowerFormula().getPrice() - ((promotionDetail1.getFlowerFormula().getPrice() * profitFlower) / 100);
+                FloristFee floristFee = this.floristFeeRepository.findFloristFeeByFloristIdAndSize(promotionDetail1.getFlorist().getId(), promotionDetail1.getFlowerFormula().getSize());
+                int promotionPrice = (int) (calProfitCurrent + floristFee.getFee());
+                if (promotionPrice % 100 != 0) {
+                    promotionPrice = (promotionPrice - (promotionPrice % 100)) + 90;
+                }else{
+                    promotionPrice = promotionPrice + 90;
+                }
                 PromotionDetailLog promotionDetailLog = new PromotionDetailLog();
                 promotionDetailLog.setProfit(promotionDetail1.getProfit());
-                promotionDetailLog.setPrice((double)promotionDetail1.getPrice());
+                promotionDetailLog.setPrice((double)promotionPrice);
                 promotionDetailLog.setQuantity(promotionDetail1.getQuantity());
                 promotionDetailLog.setStatus("active");
                 promotionDetailLog.setFlowerFormula(promotionDetail1.getFlowerFormula());

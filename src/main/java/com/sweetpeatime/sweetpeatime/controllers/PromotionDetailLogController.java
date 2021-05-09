@@ -115,19 +115,21 @@ public class PromotionDetailLogController {
                 }
             }
 
-            PromotionDetailCurrentDto promotionDetailCurrentDto = new PromotionDetailCurrentDto();
-            promotionDetailCurrentDto.setId(promotionDetailLog1.getId());
-            promotionDetailCurrentDto.setFormulaName(promotionDetailLog1.getFlowerFormula().getName());
-            promotionDetailCurrentDto.setSize(promotionDetailLog1.getFlowerFormula().getSize());
-            promotionDetailCurrentDto.setQuantity(promotionDetailLog1.getQuantity());
-            promotionDetailCurrentDto.setProfit(promotionDetailLog1.getProfit());
-            promotionDetailCurrentDto.setTotalProfit(promotionDetailLog1.getTotalProfit());
-            promotionDetailCurrentDto.setPrice(promotionDetailLog1.getPrice());
-            promotionDetailCurrentDto.setLocationName(promotionDetailLog1.getFlorist().getLocationName());
-            promotionDetailCurrentDto.setImage(promotionDetailLog1.getFlowerFormula().getImagePath());
-            promotionDetailCurrentDto.setQuantityFlower(quantityFlower);
-            promotionDetailCurrentDto.setStock(stockAvailable);
-            promotionDetailCurrentDtos.add(promotionDetailCurrentDto);
+            if(stockAvailable > 0) {
+                PromotionDetailCurrentDto promotionDetailCurrentDto = new PromotionDetailCurrentDto();
+                promotionDetailCurrentDto.setId(promotionDetailLog1.getId());
+                promotionDetailCurrentDto.setFormulaName(promotionDetailLog1.getFlowerFormula().getName());
+                promotionDetailCurrentDto.setSize(promotionDetailLog1.getFlowerFormula().getSize());
+                promotionDetailCurrentDto.setQuantity(promotionDetailLog1.getQuantity());
+                promotionDetailCurrentDto.setProfit(promotionDetailLog1.getProfit());
+                promotionDetailCurrentDto.setTotalProfit(promotionDetailLog1.getTotalProfit());
+                promotionDetailCurrentDto.setPrice(promotionDetailLog1.getPrice());
+                promotionDetailCurrentDto.setLocationName(promotionDetailLog1.getFlorist().getLocationName());
+                promotionDetailCurrentDto.setImage(promotionDetailLog1.getFlowerFormula().getImagePath());
+                promotionDetailCurrentDto.setQuantityFlower(quantityFlower);
+                promotionDetailCurrentDto.setStock(stockAvailable);
+                promotionDetailCurrentDtos.add(promotionDetailCurrentDto);
+            }
         }
 
         List<PromotionDetailCurrentDto> sortPromotion = promotionDetailCurrentDtos.stream()
