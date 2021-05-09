@@ -94,6 +94,7 @@ public class FlowerFormulaController {
                 if (promotionSize != 0) {
                     if (promotionSize > 1) {
                         PromotionDetail newPromotionDetail = new PromotionDetail();
+
                         newPromotionDetail = findNearlyDate(promotionDetails);
 
                         if(newPromotionDetail.getQuantity() == 0 && promotionSize == 1) {
