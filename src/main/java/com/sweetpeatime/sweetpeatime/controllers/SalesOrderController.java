@@ -290,6 +290,8 @@ public class SalesOrderController {
                            newPromotionDetail.setTotalProfit(totalProfit);
                            this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
                            if (newPromotionDetail.getQuantity() == 0) {
+                               promotionDetails.get(0).setStatus("inactive");
+                               this.promotionDetailRepository.saveAndFlush(newPromotionDetail);
                                promotionDetails.remove(newPromotionDetail);
                            }
                        }
@@ -334,6 +336,8 @@ public class SalesOrderController {
                            promotionDetails.get(0).setTotalProfit(totalProfit);
                            this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
                            if (promotionDetails.get(0).getQuantity() == 0) {
+                               promotionDetails.get(0).setStatus("inactive");
+                               this.promotionDetailRepository.saveAndFlush(promotionDetails.get(0));
                                promotionDetails.remove(promotionDetails.get(0));
                            }
                        }
