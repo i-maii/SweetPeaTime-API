@@ -793,6 +793,7 @@ public class PromotionDetailController {
         newPromotionDetail.setProfit(addPromotionDto.getProfit());
         newPromotionDetail.setPrice(addPromotionDto.getPrice());
         newPromotionDetail.setQuantity(addPromotionDto.getQuantity());
+        newPromotionDetail.setQuantitySold(0);
         newPromotionDetail.setStatus("active");
         newPromotionDetail.setPromotion(promotion);
         newPromotionDetail.setFlowerFormula(this.flowerFormulaRepository.findFlowerFormulaByName(addPromotionDto.getFormulaName()));
