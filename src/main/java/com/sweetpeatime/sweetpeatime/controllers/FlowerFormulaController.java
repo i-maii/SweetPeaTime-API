@@ -89,49 +89,48 @@ public class FlowerFormulaController {
 
                         newPromotionDetail = findNearlyDate(promotionDetails);
 
-                        if (newPromotionDetail.getQuantity() - 1 == 0) {
-                            flowerPrices += newPromotionDetail.getPrice();
-                            promotionDetails.remove(newPromotionDetail);
+                        if(newPromotionDetail.getQuantity() == 0) {
+                            flowerPrices += flowerFormula.getPrice();
                             floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
                             flowerPrices += floristFee.getFee();
+                            flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
+                        }else if (newPromotionDetail.getQuantity() - 1 == 0) {
+                            flowerPrices += newPromotionDetail.getPrice();
+                            promotionDetails.remove(newPromotionDetail);
                             promotionSize--;
                         } else {
                             if (newPromotionDetail.getQuantity() >= flowerPriceDto.getTotalOrder()) {
                                 flowerPrices = newPromotionDetail.getPrice() * flowerPriceDto.getTotalOrder();
-                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                                flowerPrices += floristFee.getFee();
                                 break;
                             }else {
                                 orderTotal = orderTotal - newPromotionDetail.getQuantity();
                                 flowerPrices += newPromotionDetail.getPrice() * newPromotionDetail.getQuantity();
-                                floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                                flowerPrices += floristFee.getFee();
                                 promotionDetails.remove(newPromotionDetail);
                             }
                         }
 
-                    } else if (promotionDetails.size() == 1) {
+                    } else if (promotionDetails.size() == 1 && promotionDetails.get(0).getQuantity() != 0) {
                         //find nearly date
                         for (PromotionDetail promotionDetail : promotionDetails) {
                             flowerPrices += promotionDetail.getPrice();
-                            floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
-                            flowerPrices += floristFee.getFee();
                             promotionSize--;
                         }
                     } else {
                         flowerPrices += flowerFormula.getPrice();
                         floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
                         flowerPrices += floristFee.getFee();
+                        flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                     }
                 } else {
                     flowerPrices += flowerFormula.getPrice();
                     floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
                     flowerPrices += floristFee.getFee();
+                    flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
                 }
             }
         }
-        flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
 
+        flowerPrices = (flowerPrices - (flowerPrices % 100)) + 90;
         priceOfSalesOrder.setFlowerPrice((double) flowerPrices);
 
         return priceOfSalesOrder;
