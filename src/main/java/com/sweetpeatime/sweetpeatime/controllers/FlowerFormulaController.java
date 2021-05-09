@@ -111,13 +111,12 @@ public class FlowerFormulaController {
 
                     } else if (promotionDetails.size() == 1 && promotionDetails.get(0).getQuantity() != 0) {
                         //find nearly date
-                        for (PromotionDetail promotionDetail : promotionDetails) {
-                            flowerPrices += promotionDetail.getPrice();
 
+                            flowerPrices += promotionDetails.get(0).getPrice();
+                            promotionDetails.get(0).setQuantity(promotionDetails.get(0).getQuantity() - 1);
                             if (promotionDetails.get(0).getQuantity() == 0) {
                                 promotionSize--;
                             }
-                        }
                     } else {
                         flowerPrices += flowerFormula.getPrice();
                         floristFee = this.floristFeeRepository.findAllByFloristIdAndSize(floristId, flowerFormula.getSize());
