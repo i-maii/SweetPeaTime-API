@@ -113,7 +113,10 @@ public class FlowerFormulaController {
                         //find nearly date
                         for (PromotionDetail promotionDetail : promotionDetails) {
                             flowerPrices += promotionDetail.getPrice();
-                            promotionSize--;
+
+                            if (promotionDetails.get(0).getQuantity() == 0) {
+                                promotionSize--;
+                            }
                         }
                     } else {
                         flowerPrices += flowerFormula.getPrice();
