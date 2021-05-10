@@ -300,22 +300,25 @@ public class StockController {
 
             List<Stock> oldStock = this.stockRepository.findAllByQuantityLessThanAndFlowerIdOrderByLotAsc(0, s.getFlower().getFlowerId());
             Integer quantity = s.getQuantity();
-            for (Stock o: oldStock) {
-                if (quantity >= Math.abs(o.getQuantity())) {
-                    quantity = quantity + o.getQuantity();
-                    o.setQuantity(0);
-                } else {
-                    o.setQuantity(quantity + o.getQuantity());
-                    quantity = 0;
-                }
-                this.stockRepository.saveAndFlush(o);
+            if (oldStock != null) {
+                for (Stock o : oldStock) {
+                    if (quantity >= Math.abs(o.getQuantity())) {
+                        quantity = quantity + o.getQuantity();
+                        o.setQuantity(0);
+                    } else {
+                        o.setQuantity(quantity + o.getQuantity());
+                        quantity = 0;
+                    }
+                    this.stockRepository.saveAndFlush(o);
 
-                if (quantity <= 0)
-                    break;
+                    if (quantity <= 0)
+                        break;
+                }
             }
 
             Stock stock = this.stockRepository.findStockByFlowerIdAndLotAndFloristId(s.getFlower().getFlowerId(), dateFormat.parse(s.getLot()), s.getFlorist().getId());
             if (stock == null) {
+                stock = new Stock();
                 stock.setFlower(s.getFlower());
                 stock.setQuantity(quantity);
                 stock.setLot(dateFormat.parse(s.getLot()));
