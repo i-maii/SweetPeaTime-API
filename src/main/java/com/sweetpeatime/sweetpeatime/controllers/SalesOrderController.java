@@ -254,14 +254,15 @@ public class SalesOrderController {
                                for (FlowerFormulaDetail f: flowerFormulaDetail) {
                                    List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
                                    int temp = f.getQuantity();
-
+                                   int size = stocks.size();
                                    for (int j = 0; j < stocks.size(); j++){
-                                       if (stocks.size() > 1) {
+                                       if (size > 1) {
                                            if (temp > stocks.get(j).getQuantity()) {
                                                temp = stocks.get(j).getQuantity() - temp;
                                                temp = Math.abs(temp);
                                                stocks.get(j).setQuantity(0);
                                                this.stockRepository.saveAndFlush(stocks.get(j));
+                                               size--;
                                            } else {
                                                temp = stocks.get(j).getQuantity() - temp;
                                                stocks.get(j).setQuantity(temp);
@@ -304,14 +305,15 @@ public class SalesOrderController {
                                for (FlowerFormulaDetail f: flowerFormulaDetail) {
                                    List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
                                    int temp = f.getQuantity();
-
+                                   int size = stocks.size();
                                    for (int j = 0; j < stocks.size(); j++){
-                                       if (stocks.size() > 1) {
+                                       if (size > 1) {
                                            if (temp > stocks.get(j).getQuantity()) {
                                                temp = stocks.get(j).getQuantity() - temp;
                                                temp = Math.abs(temp);
                                                stocks.get(j).setQuantity(0);
                                                this.stockRepository.saveAndFlush(stocks.get(j));
+                                               size--;
                                            } else {
                                                temp = stocks.get(j).getQuantity() - temp;
                                                stocks.get(j).setQuantity(temp);
@@ -348,14 +350,15 @@ public class SalesOrderController {
                        for (FlowerFormulaDetail f: flowerFormulaDetail) {
                            List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
                            int temp = f.getQuantity();
-
+                           int size = stocks.size();
                            for (int j = 0; j < stocks.size(); j++){
-                               if (stocks.size() > 1) {
+                               if (size > 1) {
                                    if (temp > stocks.get(j).getQuantity()) {
                                        temp = stocks.get(j).getQuantity() - temp;
                                        temp = Math.abs(temp);
                                        stocks.get(j).setQuantity(0);
                                        this.stockRepository.saveAndFlush(stocks.get(j));
+                                       size--;
                                    } else {
                                        temp = stocks.get(j).getQuantity() - temp;
                                        stocks.get(j).setQuantity(temp);
@@ -378,14 +381,15 @@ public class SalesOrderController {
                    for (FlowerFormulaDetail f: flowerFormulaDetail) {
                        List<Stock> stocks = this.stockRepository.findAllByFlowerIdAndFloristIdOrderByLotAsc(f.getFlower().getFlowerId(), createSalesOrder.getFlorist());
                        int temp = f.getQuantity() * flowerMultipleDto.getOrderTotal();
-
+                       int size = stocks.size();
                        for (int j = 0; j < stocks.size(); j++){
-                           if (stocks.size() > 1) {
+                           if (size > 1) {
                                if (temp > stocks.get(j).getQuantity()) {
                                    temp = stocks.get(j).getQuantity() - temp;
                                    temp = Math.abs(temp);
                                    stocks.get(j).setQuantity(0);
                                    this.stockRepository.saveAndFlush(stocks.get(j));
+                                   size--;
                                } else {
                                    temp = stocks.get(j).getQuantity() - temp;
                                    stocks.get(j).setQuantity(temp);
